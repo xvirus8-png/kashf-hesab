@@ -118,6 +118,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 }
+
 .brand-btn.active{
 background:#0d6efd;
 color:#fff;
@@ -288,6 +289,33 @@ color:#0d6efd;
 display:none;
 }
 </style>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
+  authDomain: "kashf-system.firebaseapp.com",
+  databaseURL: "https://kashf-system-default-rtdb.firebaseio.com",
+  projectId: "kashf-system",
+  storageBucket: "kashf-system.firebasestorage.app",
+  messagingSenderId: "987561323340",
+  appId: "1:987561323340:web:19d72fce8456f2fdf9bde9"
+});
+
+const db = getDatabase(app);
+
+window.sendRequestToFirebase = async function(message, customer, brand){
+  await set(ref(db, "requests/latest"), {
+    text: message,
+    customer: customer,
+    brand: brand,
+    status: "new",
+    time: Date.now()
+  });
+};
+</script>
 </head>
 
 <body>
@@ -594,7 +622,6 @@ document.getElementById("excelFile").addEventListener("change", function(e){
       saveDataToStorage();
 
       alert("تم الاستيراد بنجاح. عدد الأسماء الجديدة: " + importedCount + (skippedCount ? " | أسطر مهملة: " + skippedCount : ""));
-
     }catch(error){
       alert("فشل الاستيراد: " + error.message);
     }finally{
@@ -611,7 +638,7 @@ document.getElementById("excelFile").addEventListener("change", function(e){
 });
 
 async function submitRequest(){
-  const customer = document.getElementById("customerName").value;
+  const customer = document.getElementById("customerName").value.trim();
   const brand = selectedBrand;
 
   if(!customer){
@@ -626,19 +653,9 @@ async function submitRequest(){
 
   const message = customer + " | " + brand;
 
-  const botToken = "8642871348:AAH7TdjmioHu72fTwHknWCXtUcf1F58JmG0";
-  const chatId = "30417278";
-
-  const url = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatId + "&text=" + encodeURIComponent(message);
-
   try{
-    const response = await fetch(url);
-    if(!response.ok){
-      alert("فشل إرسال الطلب للبوت");
-      return;
-    }
-
-    alert("تم ارسال الطلب للبوت");
+    await window.sendRequestToFirebase(message, customer, brand);
+    alert("تم إرسال الطلب بنجاح");
   }catch(error){
     alert("صار خطأ بالإرسال");
   }

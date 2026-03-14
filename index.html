@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -136,6 +137,7 @@ margin-top:10px;
 display:flex;
 justify-content:space-between;
 margin-bottom:8px;
+gap:10px;
 }
 
 .bottom-bar{
@@ -292,7 +294,7 @@ display:none;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
@@ -314,6 +316,22 @@ window.sendRequestToFirebase = async function(message, customer, brand){
     status: "new",
     time: Date.now()
   });
+};
+
+window.saveCustomersToFirebase = async function(data){
+  await set(ref(db, "customersByBrand"), data);
+};
+
+window.loadCustomersFromFirebase = async function(){
+  const snapshot = await get(child(ref(db), "customersByBrand"));
+  if (snapshot.exists()) {
+    return snapshot.val();
+  }
+  return null;
+};
+
+window.deleteCustomersFromFirebase = async function(){
+  await remove(ref(db, "customersByBrand"));
 };
 </script>
 </head>
@@ -436,6 +454,7 @@ const results = document.getElementById("searchResults");
 const searchBrandTitle = document.getElementById("searchBrandTitle");
 
 loadSavedData();
+loadFirebaseCustomers();
 
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("open");
@@ -532,7 +551,26 @@ function loadSavedData(){
   }
 }
 
-function deleteSavedData(){
+async function loadFirebaseCustomers(){
+  try{
+    const firebaseData = await window.loadCustomersFromFirebase();
+
+    if(firebaseData && typeof firebaseData === "object"){
+      customersByBrand = {
+        FOREVER: Array.isArray(firebaseData.FOREVER) ? firebaseData.FOREVER : [],
+        CHARACTER: Array.isArray(firebaseData.CHARACTER) ? firebaseData.CHARACTER : [],
+        ROZLA: Array.isArray(firebaseData.ROZLA) ? firebaseData.ROZLA : [],
+        GENERAL: Array.isArray(firebaseData.GENERAL) ? firebaseData.GENERAL : []
+      };
+
+      saveDataToStorage();
+    }
+  }catch(error){
+    console.log("تعذر تحميل الزباين من Firebase", error);
+  }
+}
+
+async function deleteSavedData(){
   const password = prompt("ادخل الباسورد لحذف البيانات");
   if(password === null) return;
 
@@ -542,6 +580,12 @@ function deleteSavedData(){
   }
 
   localStorage.removeItem(STORAGE_KEY);
+
+  try{
+    await window.deleteCustomersFromFirebase();
+  }catch(error){
+    console.log("تعذر حذف بيانات Firebase", error);
+  }
 
   customersByBrand = {
     FOREVER: [],
@@ -563,7 +607,7 @@ document.getElementById("excelFile").addEventListener("change", function(e){
 
   const reader = new FileReader();
 
-  reader.onload = function(evt){
+  reader.onload = async function(evt){
     try{
       const data = new Uint8Array(evt.target.result);
       const workbook = XLSX.read(data, {type:"array"});
@@ -620,6 +664,7 @@ document.getElementById("excelFile").addEventListener("change", function(e){
 
       customersByBrand = newCustomersByBrand;
       saveDataToStorage();
+      await window.saveCustomersToFirebase(customersByBrand);
 
       alert("تم الاستيراد بنجاح. عدد الأسماء الجديدة: " + importedCount + (skippedCount ? " | أسطر مهملة: " + skippedCount : ""));
     }catch(error){

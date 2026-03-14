@@ -290,53 +290,6 @@ color:#0d6efd;
 display:none;
 }
 </style>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const app = initializeApp({
-  apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
-  authDomain: "kashf-system.firebaseapp.com",
-  databaseURL: "https://kashf-system-default-rtdb.firebaseio.com",
-  projectId: "kashf-system",
-  storageBucket: "kashf-system.firebasestorage.app",
-  messagingSenderId: "987561323340",
-  appId: "1:987561323340:web:19d72fce8456f2fdf9bde9"
-});
-
-const db = getDatabase(app);
-
-window.sendRequestToFirebase = async function(message, customer, brand){
-  await set(ref(db, "requests/latest"), {
-    text: message,
-    customer: customer,
-    brand: brand,
-    status: "new",
-    time: Date.now()
-  });
-};
-
-window.saveCustomersToFirebase = async function(data){
-  await set(ref(db, "customersByBrand"), data);
-};
-
-window.loadCustomersFromFirebase = async function(){
-  const snapshot = await get(child(ref(db), "customersByBrand"));
-  if(snapshot.exists()){
-    return snapshot.val();
-  }
-  return null;
-};
-
-window.deleteCustomersFromFirebase = async function(){
-  await remove(ref(db, "customersByBrand"));
-};
-
-window.markRequestDone = async function(){
-  await set(ref(db, "requests/latest/status"), "done");
-};
-</script>
 </head>
 
 <body>
@@ -436,7 +389,22 @@ window.markRequestDone = async function(){
   <div id="searchResults"></div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
+  authDomain: "kashf-system.firebaseapp.com",
+  databaseURL: "https://kashf-system-default-rtdb.firebaseio.com",
+  projectId: "kashf-system",
+  storageBucket: "kashf-system.firebasestorage.app",
+  messagingSenderId: "987561323340",
+  appId: "1:987561323340:web:19d72fce8456f2fdf9bde9"
+});
+
+const db = getDatabase(app);
+
 const DELETE_PASSWORD = "1564";
 
 let selectedBrand = "";
@@ -455,12 +423,12 @@ const searchInput = document.getElementById("searchInput");
 const results = document.getElementById("searchResults");
 const searchBrandTitle = document.getElementById("searchBrandTitle");
 
-loadFirebaseCustomers();
-
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("open");
   document.getElementById("sidebarOverlay").classList.toggle("show");
 }
+
+window.toggleSidebar = toggleSidebar;
 
 function setBrand(brand, btn){
   selectedBrand = brand;
@@ -473,6 +441,8 @@ function setBrand(brand, btn){
   previewCustomer.textContent = "—";
 }
 
+window.setBrand = setBrand;
+
 function clearForm(){
   selectedBrand = "";
   previewCustomer.textContent = "—";
@@ -480,6 +450,8 @@ function clearForm(){
   document.getElementById("customerName").value = "";
   document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
 }
+
+window.clearForm = clearForm;
 
 function openSearch(){
   if(!selectedBrand){
@@ -494,9 +466,13 @@ function openSearch(){
   renderResults(customersByBrand[selectedBrand] || []);
 }
 
+window.openSearch = openSearch;
+
 function closeSearch(){
   overlay.style.display = "none";
 }
+
+window.closeSearch = closeSearch;
 
 searchInput.addEventListener("input", () => {
   const text = searchInput.value.trim().toLowerCase();
@@ -529,9 +505,35 @@ function renderResults(list){
   });
 }
 
+async function sendRequestToFirebase(message, customer, brand){
+  await set(ref(db, "requests/latest"), {
+    text: message,
+    customer: customer,
+    brand: brand,
+    status: "new",
+    time: Date.now()
+  });
+}
+
+async function saveCustomersToFirebase(data){
+  await set(ref(db, "customersByBrand"), data);
+}
+
+async function loadCustomersFromFirebase(){
+  const snapshot = await get(child(ref(db), "customersByBrand"));
+  if(snapshot.exists()){
+    return snapshot.val();
+  }
+  return null;
+}
+
+async function deleteCustomersFromFirebase(){
+  await remove(ref(db, "customersByBrand"));
+}
+
 async function loadFirebaseCustomers(){
   try{
-    const firebaseData = await window.loadCustomersFromFirebase();
+    const firebaseData = await loadCustomersFromFirebase();
 
     if(firebaseData && typeof firebaseData === "object"){
       customersByBrand = {
@@ -550,6 +552,12 @@ async function loadFirebaseCustomers(){
     }
   }catch(error){
     console.log("تعذر تحميل الزباين من Firebase", error);
+    customersByBrand = {
+      FOREVER: [],
+      CHARACTER: [],
+      ROZLA: [],
+      GENERAL: []
+    };
   }
 }
 
@@ -563,7 +571,7 @@ async function deleteSavedData(){
   }
 
   try{
-    await window.deleteCustomersFromFirebase();
+    await deleteCustomersFromFirebase();
   }catch(error){
     console.log("تعذر حذف بيانات Firebase", error);
   }
@@ -581,6 +589,8 @@ async function deleteSavedData(){
 
   alert("تم حذف البيانات السحابية بنجاح");
 }
+
+window.deleteSavedData = deleteSavedData;
 
 document.getElementById("excelFile").addEventListener("change", function(e){
   const file = e.target.files[0];
@@ -644,7 +654,7 @@ document.getElementById("excelFile").addEventListener("change", function(e){
       }
 
       customersByBrand = newCustomersByBrand;
-      await window.saveCustomersToFirebase(customersByBrand);
+      await saveCustomersToFirebase(customersByBrand);
 
       alert("تم الاستيراد السحابي بنجاح. عدد الأسماء الجديدة: " + importedCount + (skippedCount ? " | أسطر مهملة: " + skippedCount : ""));
     }catch(error){
@@ -679,12 +689,16 @@ async function submitRequest(){
   const message = customer + " | " + brand;
 
   try{
-    await window.sendRequestToFirebase(message, customer, brand);
+    await sendRequestToFirebase(message, customer, brand);
     alert("تم إرسال الطلب بنجاح");
   }catch(error){
     alert("صار خطأ بالإرسال");
   }
 }
+
+window.submitRequest = submitRequest;
+
+await loadFirebaseCustomers();
 </script>
 
 </body>

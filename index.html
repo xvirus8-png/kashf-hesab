@@ -204,12 +204,14 @@ font-size:16px;
 }
 
 #searchResults{
-max-height:70vh;
+max-height:52vh;
 overflow:auto;
+border-radius:14px;
+background:#fff;
 }
 
 .search-item{
-padding:8px 12px;
+padding:10px 12px;
 border-bottom:1px solid #eee;
 cursor:pointer;
 font-size:15px;
@@ -220,6 +222,22 @@ line-height:1.2;
 background:#f5f7fa;
 }
 
+.search-item.select-mode{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.search-item-name{
+flex:1;
+}
+
+.search-checkbox{
+width:20px;
+height:20px;
+accent-color:#0d6efd;
+}
+
 .search-brand-box{
 background:#f4f7ff;
 border:1px solid #dbe4ff;
@@ -228,6 +246,58 @@ border-radius:14px;
 margin-bottom:12px;
 font-weight:800;
 color:#0d6efd;
+}
+
+.search-actions{
+display:flex;
+align-items:center;
+gap:8px;
+flex-wrap:wrap;
+margin-bottom:10px;
+}
+
+#selectionTools{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.mini-btn{
+border:none;
+border-radius:12px;
+padding:10px 14px;
+font-size:14px;
+font-weight:800;
+cursor:pointer;
+background:#eef1f5;
+color:#222;
+}
+
+.mini-btn.primary{
+background:#0d6efd;
+color:#fff;
+}
+
+.mini-btn.danger{
+background:#fbe7e7;
+color:#b42318;
+}
+
+.selected-count-box{
+background:#f7f8fb;
+border:1px solid #eceff3;
+padding:10px 12px;
+border-radius:12px;
+margin-bottom:10px;
+font-weight:800;
+}
+
+.bulk-send-bar{
+position:sticky;
+bottom:0;
+background:#fff;
+padding-top:12px;
+margin-top:12px;
 }
 
 /* القائمة الجانبية */
@@ -420,7 +490,25 @@ transition:width .35s ease;
     <button class="btn btn-secondary" style="flex:0 0 auto;padding:12px 16px" onclick="closeSearch()">إلغاء</button>
   </div>
 
+  <div class="search-actions">
+    <button type="button" class="mini-btn primary" id="startSelectBtn" onclick="startSelectionMode()">تحديد</button>
+
+    <div id="selectionTools" style="display:none;">
+      <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
+      <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
+      <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
+    </div>
+  </div>
+
+  <div id="selectedCountBox" class="selected-count-box" style="display:none;">
+    عدد المحددين: <span id="selectedCount">0</span>
+  </div>
+
   <div id="searchResults"></div>
+
+  <div id="bulkSendBar" class="bulk-send-bar" style="display:none;">
+    <button type="button" class="btn btn-primary" onclick="sendSelectedCustomers()">إرسال المحددين (<span id="bulkCount">0</span>)</button>
+  </div>
 </div>
 
 <script type="module">
@@ -443,6 +531,9 @@ const DELETE_PASSWORD = "1564";
 
 let selectedBrand = "";
 let lastRequestTime = null;
+let selectionMode = false;
+let selectedCustomers = new Set();
+let currentFilteredResults = [];
 
 let customersByBrand = {
   FOREVER: [],
@@ -460,6 +551,12 @@ const searchBrandTitle = document.getElementById("searchBrandTitle");
 const statusCard = document.getElementById("statusCard");
 const statusText = document.getElementById("statusText");
 const statusBar = document.getElementById("statusBar");
+const startSelectBtn = document.getElementById("startSelectBtn");
+const selectionTools = document.getElementById("selectionTools");
+const selectedCountBox = document.getElementById("selectedCountBox");
+const selectedCount = document.getElementById("selectedCount");
+const bulkSendBar = document.getElementById("bulkSendBar");
+const bulkCount = document.getElementById("bulkCount");
 
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("open");
@@ -488,6 +585,46 @@ function clearForm(){
 }
 window.clearForm = clearForm;
 
+function updateSelectedUI(){
+  const count = selectedCustomers.size;
+  selectedCount.textContent = count;
+  bulkCount.textContent = count;
+  selectedCountBox.style.display = selectionMode ? "block" : "none";
+  bulkSendBar.style.display = selectionMode && count > 0 ? "block" : "none";
+  startSelectBtn.style.display = selectionMode ? "none" : "inline-flex";
+  selectionTools.style.display = selectionMode ? "flex" : "none";
+}
+
+function startSelectionMode(){
+  selectionMode = true;
+  selectedCustomers.clear();
+  updateSelectedUI();
+  renderResults(currentFilteredResults);
+}
+window.startSelectionMode = startSelectionMode;
+
+function endSelectionMode(){
+  selectionMode = false;
+  selectedCustomers.clear();
+  updateSelectedUI();
+  renderResults(currentFilteredResults);
+}
+window.endSelectionMode = endSelectionMode;
+
+function clearSelectedCustomers(){
+  selectedCustomers.clear();
+  updateSelectedUI();
+  renderResults(currentFilteredResults);
+}
+window.clearSelectedCustomers = clearSelectedCustomers;
+
+function selectAllVisible(){
+  currentFilteredResults.forEach(name => selectedCustomers.add(name));
+  updateSelectedUI();
+  renderResults(currentFilteredResults);
+}
+window.selectAllVisible = selectAllVisible;
+
 function openSearch(){
   if(!selectedBrand){
     alert("اختر البراند اولاً");
@@ -497,22 +634,31 @@ function openSearch(){
   overlay.style.display = "block";
   searchInput.value = "";
   searchBrandTitle.textContent = "البراند المختار: " + selectedBrand;
+
+  selectionMode = false;
+  selectedCustomers.clear();
+  updateSelectedUI();
+
+  currentFilteredResults = [...(customersByBrand[selectedBrand] || [])];
+  renderResults(currentFilteredResults);
   searchInput.focus();
-  renderResults(customersByBrand[selectedBrand] || []);
 }
 window.openSearch = openSearch;
 
 function closeSearch(){
   overlay.style.display = "none";
+  selectionMode = false;
+  selectedCustomers.clear();
+  updateSelectedUI();
 }
 window.closeSearch = closeSearch;
 
 searchInput.addEventListener("input", () => {
   const text = searchInput.value.trim().toLowerCase();
-  const list = (customersByBrand[selectedBrand] || []).filter(name =>
+  currentFilteredResults = (customersByBrand[selectedBrand] || []).filter(name =>
     String(name).toLowerCase().includes(text)
   );
-  renderResults(list);
+  renderResults(currentFilteredResults);
 });
 
 function renderResults(list){
@@ -525,14 +671,52 @@ function renderResults(list){
 
   list.forEach(name => {
     const div = document.createElement("div");
-    div.className = "search-item";
-    div.innerText = name;
+    div.className = "search-item" + (selectionMode ? " select-mode" : "");
 
-    div.onclick = () => {
-      document.getElementById("customerName").value = name;
-      previewCustomer.textContent = name;
-      closeSearch();
-    };
+    if(selectionMode){
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "search-checkbox";
+      checkbox.checked = selectedCustomers.has(name);
+
+      checkbox.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      checkbox.addEventListener("change", () => {
+        if(checkbox.checked){
+          selectedCustomers.add(name);
+        }else{
+          selectedCustomers.delete(name);
+        }
+        updateSelectedUI();
+      });
+
+      const span = document.createElement("div");
+      span.className = "search-item-name";
+      span.innerText = name;
+
+      div.appendChild(checkbox);
+      div.appendChild(span);
+
+      div.onclick = () => {
+        if(selectedCustomers.has(name)){
+          selectedCustomers.delete(name);
+        }else{
+          selectedCustomers.add(name);
+        }
+        updateSelectedUI();
+        renderResults(currentFilteredResults);
+      };
+    }else{
+      div.innerText = name;
+
+      div.onclick = () => {
+        document.getElementById("customerName").value = name;
+        previewCustomer.textContent = name;
+        closeSearch();
+      };
+    }
 
     results.appendChild(div);
   });
@@ -561,26 +745,41 @@ function updateStatus(status){
   }
 }
 
-function watchRequestStatus(requestTime){
-  const latestRef = ref(db, "requests/latest");
+function waitForRequestCompletion(requestTime, timeoutMs = 180000){
+  return new Promise((resolve, reject) => {
+    const latestRef = ref(db, "requests/latest");
+    const startedAt = Date.now();
 
-  onValue(latestRef, (snapshot) => {
-    if(!snapshot.exists()) return;
+    const unsubscribe = onValue(latestRef, (snapshot) => {
+      if(!snapshot.exists()) return;
 
-    const data = snapshot.val();
-    if(!data) return;
+      const data = snapshot.val();
+      if(!data || data.time !== requestTime) return;
 
-    if(data.time !== requestTime) return;
+      if(data.status === "new"){
+        updateStatus("new");
+      } else if(data.status === "processing"){
+        updateStatus("processing");
+      } else if(data.status === "done"){
+        updateStatus("done");
+        unsubscribe();
+        resolve("done");
+      } else if(data.status === "error"){
+        updateStatus("error");
+        unsubscribe();
+        reject(new Error("error"));
+      }
 
-    if(data.status === "new"){
-      updateStatus("new");
-    } else if(data.status === "processing"){
-      updateStatus("processing");
-    } else if(data.status === "done"){
-      updateStatus("done");
-    } else if(data.status === "error"){
-      updateStatus("error");
-    }
+      if(Date.now() - startedAt > timeoutMs){
+        unsubscribe();
+        reject(new Error("timeout"));
+      }
+    });
+
+    setTimeout(() => {
+      try{ unsubscribe(); }catch{}
+      reject(new Error("timeout"));
+    }, timeoutMs + 500);
   });
 }
 
@@ -808,14 +1007,48 @@ async function submitRequest(){
 
     lastRequestTime = await sendRequestToFirebase(message, customer, brand);
 
-    updateStatus("new");
-    watchRequestStatus(lastRequestTime);
-
+    await waitForRequestCompletion(lastRequestTime);
     alert("تم إرسال الطلب بنجاح");
   }catch(error){
     alert("صار خطأ بالإرسال");
   }
 }
+
+async function sendSelectedCustomers(){
+  if(selectedCustomers.size === 0){
+    alert("ماكو أسماء محددة");
+    return;
+  }
+
+  if(!selectedBrand){
+    alert("اختر البراند اولاً");
+    return;
+  }
+
+  const names = Array.from(selectedCustomers);
+
+  for(const customer of names){
+    try{
+      document.getElementById("customerName").value = customer;
+      previewCustomer.textContent = customer;
+
+      showStatusCard();
+      updateStatus("sending");
+
+      const requestTime = await sendRequestToFirebase(customer + " | " + selectedBrand, customer, selectedBrand);
+      await waitForRequestCompletion(requestTime);
+
+      await new Promise(resolve => setTimeout(resolve, 600));
+    }catch(error){
+      alert("توقف الإرسال عند الزبون: " + customer);
+      return;
+    }
+  }
+
+  alert("تم إرسال جميع المحددين بنجاح");
+  closeSearch();
+}
+window.sendSelectedCustomers = sendSelectedCustomers;
 
 window.submitRequest = submitRequest;
 

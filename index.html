@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -726,26 +726,31 @@ function showStatusCard(){
   statusCard.style.display = "block";
 }
 
-function updateStatus(status){
+function updateStatus(status, current = null, total = null){
+  let counterText = "";
+
+  if(current !== null && total !== null){
+    counterText = " (" + current + " / " + total + ")";
+  }
+
   if(status === "sending"){
-    statusText.textContent = "جاري إرسال الطلب...";
+    statusText.textContent = "جاري إرسال الطلب..." + counterText;
     statusBar.style.width = "20%";
   } else if(status === "new"){
-    statusText.textContent = "تم إرسال الطلب، بانتظار المعالجة...";
+    statusText.textContent = "تم إرسال الطلب، بانتظار المعالجة..." + counterText;
     statusBar.style.width = "35%";
   } else if(status === "processing"){
-    statusText.textContent = "الطلب قيد المعالجة...";
+    statusText.textContent = "الطلب قيد المعالجة..." + counterText;
     statusBar.style.width = "70%";
   } else if(status === "done"){
-    statusText.textContent = "تم إنجاز الطلب بنجاح";
+    statusText.textContent = "تم إنجاز الطلب بنجاح" + counterText;
     statusBar.style.width = "100%";
   } else if(status === "error"){
-    statusText.textContent = "صار خطأ أثناء معالجة الطلب";
+    statusText.textContent = "صار خطأ أثناء معالجة الطلب" + counterText;
     statusBar.style.width = "100%";
   }
 }
-
-function waitForRequestCompletion(requestTime, timeoutMs = 180000){
+function waitForRequestCompletion(requestTime, current = null, total = null, timeoutMs = 180000){
   return new Promise((resolve, reject) => {
     const latestRef = ref(db, "requests/latest");
     const startedAt = Date.now();
@@ -757,15 +762,15 @@ function waitForRequestCompletion(requestTime, timeoutMs = 180000){
       if(!data || data.time !== requestTime) return;
 
       if(data.status === "new"){
-        updateStatus("new");
+        updateStatus("new", current, total);
       } else if(data.status === "processing"){
-        updateStatus("processing");
+        updateStatus("processing", current, total);
       } else if(data.status === "done"){
-        updateStatus("done");
+        updateStatus("done", current, total);
         unsubscribe();
         resolve("done");
       } else if(data.status === "error"){
-        updateStatus("error");
+        updateStatus("error", current, total);
         unsubscribe();
         reject(new Error("error"));
       }
@@ -777,7 +782,7 @@ function waitForRequestCompletion(requestTime, timeoutMs = 180000){
     });
 
     setTimeout(() => {
-      try{ unsubscribe(); }catch{}
+      try { unsubscribe(); } catch {}
       reject(new Error("timeout"));
     }, timeoutMs + 500);
   });
@@ -1026,27 +1031,39 @@ async function sendSelectedCustomers(){
   }
 
   const names = Array.from(selectedCustomers);
+  const total = names.length;
 
-  for(const customer of names){
+  // نرجع للواجهة الرئيسية مباشرة
+  closeSearch();
+
+  for(let i = 0; i < total; i++){
+    const customer = names[i];
+    const current = i + 1;
+
     try{
       document.getElementById("customerName").value = customer;
       previewCustomer.textContent = customer;
 
       showStatusCard();
-      updateStatus("sending");
+      updateStatus("sending", current, total);
 
-      const requestTime = await sendRequestToFirebase(customer + " | " + selectedBrand, customer, selectedBrand);
-      await waitForRequestCompletion(requestTime);
+      const requestTime = await sendRequestToFirebase(
+        customer + " | " + selectedBrand,
+        customer,
+        selectedBrand
+      );
+
+      await waitForRequestCompletion(requestTime, current, total);
 
       await new Promise(resolve => setTimeout(resolve, 600));
     }catch(error){
+      updateStatus("error", current, total);
       alert("توقف الإرسال عند الزبون: " + customer);
       return;
     }
   }
 
   alert("تم إرسال جميع المحددين بنجاح");
-  closeSearch();
 }
 window.sendSelectedCustomers = sendSelectedCustomers;
 

@@ -339,8 +339,8 @@ display:none;
       <div class="quick-brands">
         <button type="button" class="brand-btn" onclick="setBrand('FOREVER',this)">FOREVER</button>
         <button type="button" class="brand-btn" onclick="setBrand('CHARACTER',this)">CHARACTER</button>
-        <button type="button" class="brand-btn" onclick="setBrand('ROZLA',this)">ROZLA</button>
-        <button type="button" class="brand-btn" onclick="setBrand('GENERAL',this)">GENERAL</button>
+        <button type="button" class="brand-btn" onclick="setBrand('ROSELLA',this)">ROSELLA</button>
+        <button type="button" class="brand-btn" onclick="setBrand('FUTURE',this)">FUTURE</button>
       </div>
     </div>
 
@@ -412,8 +412,8 @@ let selectedBrand = "";
 let customersByBrand = {
   FOREVER: [],
   CHARACTER: [],
-  ROZLA: [],
-  GENERAL: []
+  ROSELLA: [],
+  FUTURE: []
 };
 
 const previewCustomer = document.getElementById("previewCustomer");
@@ -539,15 +539,15 @@ async function loadFirebaseCustomers(){
       customersByBrand = {
         FOREVER: Array.isArray(firebaseData.FOREVER) ? firebaseData.FOREVER : [],
         CHARACTER: Array.isArray(firebaseData.CHARACTER) ? firebaseData.CHARACTER : [],
-        ROZLA: Array.isArray(firebaseData.ROZLA) ? firebaseData.ROZLA : [],
-        GENERAL: Array.isArray(firebaseData.GENERAL) ? firebaseData.GENERAL : []
+        ROSELLA: Array.isArray(firebaseData.ROSELLA) ? firebaseData.ROSELLA : [],
+        FUTURE: Array.isArray(firebaseData.FUTURE) ? firebaseData.FUTURE : []
       };
     }else{
       customersByBrand = {
         FOREVER: [],
         CHARACTER: [],
-        ROZLA: [],
-        GENERAL: []
+        ROSELLA: [],
+        FUTURE: []
       };
     }
   }catch(error){
@@ -555,8 +555,8 @@ async function loadFirebaseCustomers(){
     customersByBrand = {
       FOREVER: [],
       CHARACTER: [],
-      ROZLA: [],
-      GENERAL: []
+      ROSELLA: [],
+      FUTURE: []
     };
   }
 }
@@ -579,8 +579,8 @@ async function deleteSavedData(){
   customersByBrand = {
     FOREVER: [],
     CHARACTER: [],
-    ROZLA: [],
-    GENERAL: []
+    ROSELLA: [],
+    FUTURE: []
   };
 
   clearForm();
@@ -625,8 +625,8 @@ document.getElementById("excelFile").addEventListener("change", function(e){
       const newCustomersByBrand = {
         FOREVER: [],
         CHARACTER: [],
-        ROZLA: [],
-        GENERAL: []
+        ROSELLA: [],
+        FUTURE: []
       };
 
       rows.forEach((row) => {

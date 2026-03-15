@@ -289,6 +289,27 @@ color:#0d6efd;
 .hidden-file{
 display:none;
 }
+
+/* حالة الطلب */
+#statusText{
+font-weight:700;
+margin-bottom:10px;
+}
+
+.status-track{
+width:100%;
+height:10px;
+background:#e9ecef;
+border-radius:999px;
+overflow:hidden;
+}
+
+#statusBar{
+width:0%;
+height:100%;
+background:#0d6efd;
+transition:width .35s ease;
+}
 </style>
 </head>
 
@@ -369,6 +390,19 @@ display:none;
     </div>
   </div>
 
+  <div id="statusCard" class="card" style="display:none;">
+    <div class="section-title">
+      <i class="bi bi-hourglass-split"></i>
+      حالة الطلب
+    </div>
+
+    <div id="statusText">جاري إرسال الطلب...</div>
+
+    <div class="status-track">
+      <div id="statusBar"></div>
+    </div>
+  </div>
+
 </div>
 
 <div class="bottom-bar">
@@ -391,7 +425,7 @@ display:none;
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, get, child, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
@@ -408,6 +442,7 @@ const db = getDatabase(app);
 const DELETE_PASSWORD = "1564";
 
 let selectedBrand = "";
+let lastRequestTime = null;
 
 let customersByBrand = {
   FOREVER: [],
@@ -422,12 +457,14 @@ const overlay = document.getElementById("searchOverlay");
 const searchInput = document.getElementById("searchInput");
 const results = document.getElementById("searchResults");
 const searchBrandTitle = document.getElementById("searchBrandTitle");
+const statusCard = document.getElementById("statusCard");
+const statusText = document.getElementById("statusText");
+const statusBar = document.getElementById("statusBar");
 
 function toggleSidebar(){
   document.getElementById("sidebar").classList.toggle("open");
   document.getElementById("sidebarOverlay").classList.toggle("show");
 }
-
 window.toggleSidebar = toggleSidebar;
 
 function setBrand(brand, btn){
@@ -440,7 +477,6 @@ function setBrand(brand, btn){
   document.getElementById("customerName").value = "";
   previewCustomer.textContent = "—";
 }
-
 window.setBrand = setBrand;
 
 function clearForm(){
@@ -450,7 +486,6 @@ function clearForm(){
   document.getElementById("customerName").value = "";
   document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
 }
-
 window.clearForm = clearForm;
 
 function openSearch(){
@@ -465,13 +500,11 @@ function openSearch(){
   searchInput.focus();
   renderResults(customersByBrand[selectedBrand] || []);
 }
-
 window.openSearch = openSearch;
 
 function closeSearch(){
   overlay.style.display = "none";
 }
-
 window.closeSearch = closeSearch;
 
 searchInput.addEventListener("input", () => {
@@ -505,14 +538,64 @@ function renderResults(list){
   });
 }
 
+function showStatusCard(){
+  statusCard.style.display = "block";
+}
+
+function updateStatus(status){
+  if(status === "sending"){
+    statusText.textContent = "جاري إرسال الطلب...";
+    statusBar.style.width = "20%";
+  } else if(status === "new"){
+    statusText.textContent = "تم إرسال الطلب، بانتظار المعالجة...";
+    statusBar.style.width = "35%";
+  } else if(status === "processing"){
+    statusText.textContent = "الطلب قيد المعالجة...";
+    statusBar.style.width = "70%";
+  } else if(status === "done"){
+    statusText.textContent = "تم إنجاز الطلب بنجاح";
+    statusBar.style.width = "100%";
+  } else if(status === "error"){
+    statusText.textContent = "صار خطأ أثناء معالجة الطلب";
+    statusBar.style.width = "100%";
+  }
+}
+
+function watchRequestStatus(requestTime){
+  const latestRef = ref(db, "requests/latest");
+
+  onValue(latestRef, (snapshot) => {
+    if(!snapshot.exists()) return;
+
+    const data = snapshot.val();
+    if(!data) return;
+
+    if(data.time !== requestTime) return;
+
+    if(data.status === "new"){
+      updateStatus("new");
+    } else if(data.status === "processing"){
+      updateStatus("processing");
+    } else if(data.status === "done"){
+      updateStatus("done");
+    } else if(data.status === "error"){
+      updateStatus("error");
+    }
+  });
+}
+
 async function sendRequestToFirebase(message, customer, brand){
+  const requestTime = Date.now();
+
   await set(ref(db, "requests/latest"), {
     text: message,
     customer: customer,
     brand: brand,
     status: "new",
-    time: Date.now()
+    time: requestTime
   });
+
+  return requestTime;
 }
 
 async function saveCustomersToFirebase(data){
@@ -589,7 +672,6 @@ async function deleteSavedData(){
 
   alert("تم حذف البيانات السحابية بنجاح");
 }
-
 window.deleteSavedData = deleteSavedData;
 
 document.getElementById("excelFile").addEventListener("change", function(e){
@@ -622,28 +704,60 @@ document.getElementById("excelFile").addEventListener("change", function(e){
       let importedCount = 0;
       let skippedCount = 0;
 
-      const newCustomersByBrand = {
-        FOREVER: [],
-        CHARACTER: [],
-        ROSELLA: [],
-        FUTURE: []
+      const updatedCustomersByBrand = {
+        FOREVER: Array.isArray(customersByBrand.FOREVER) ? [...customersByBrand.FOREVER] : [],
+        CHARACTER: Array.isArray(customersByBrand.CHARACTER) ? [...customersByBrand.CHARACTER] : [],
+        ROSELLA: Array.isArray(customersByBrand.ROSELLA) ? [...customersByBrand.ROSELLA] : [],
+        FUTURE: Array.isArray(customersByBrand.FUTURE) ? [...customersByBrand.FUTURE] : []
       };
 
       rows.forEach((row) => {
         const name = String(row["الاسم"] || "").trim();
-        const brand = String(row["البراند"] || "").trim().toUpperCase();
+        let brand = String(row["البراند"] || "").trim().toUpperCase();
 
         if(!name || !brand){
           skippedCount++;
           return;
         }
 
-        if(!newCustomersByBrand[brand]){
-          newCustomersByBrand[brand] = [];
+        if (
+          brand === "ROZLA" ||
+          brand === "ROSELLA" ||
+          brand === "ROSLLA" ||
+          brand.includes("ROZLA") ||
+          brand.includes("ROSELLA") ||
+          brand.includes("ROSLLA") ||
+          brand.includes("روزلا")
+        ) {
+          brand = "ROSELLA";
+        } else if (
+          brand === "FOREVER" ||
+          brand.includes("FOREVER") ||
+          brand.includes("فور")
+        ) {
+          brand = "FOREVER";
+        } else if (
+          brand === "CHARACTER" ||
+          brand.includes("CHARACTER") ||
+          brand.includes("كاركتر")
+        ) {
+          brand = "CHARACTER";
+        } else if (
+          brand === "FUTURE" ||
+          brand === "GENERAL" ||
+          brand.includes("FUTURE") ||
+          brand.includes("GENERAL") ||
+          brand.includes("فيوتشر") ||
+          brand.includes("جنرال")
+        ) {
+          brand = "FUTURE";
+        } else {
+          skippedCount++;
+          return;
         }
 
-        if(!newCustomersByBrand[brand].includes(name)){
-          newCustomersByBrand[brand].push(name);
+        if(!updatedCustomersByBrand[brand].includes(name)){
+          updatedCustomersByBrand[brand].push(name);
           importedCount++;
         }
       });
@@ -653,7 +767,7 @@ document.getElementById("excelFile").addEventListener("change", function(e){
         return;
       }
 
-      customersByBrand = newCustomersByBrand;
+      customersByBrand = updatedCustomersByBrand;
       await saveCustomersToFirebase(customersByBrand);
 
       alert("تم الاستيراد السحابي بنجاح. عدد الأسماء الجديدة: " + importedCount + (skippedCount ? " | أسطر مهملة: " + skippedCount : ""));
@@ -689,7 +803,14 @@ async function submitRequest(){
   const message = customer + " | " + brand;
 
   try{
-    await sendRequestToFirebase(message, customer, brand);
+    showStatusCard();
+    updateStatus("sending");
+
+    lastRequestTime = await sendRequestToFirebase(message, customer, brand);
+
+    updateStatus("new");
+    watchRequestStatus(lastRequestTime);
+
     alert("تم إرسال الطلب بنجاح");
   }catch(error){
     alert("صار خطأ بالإرسال");

@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -98,6 +98,25 @@ border:1px solid #ddd;
 font-size:16px;
 }
 
+.input-group select{
+width:100%;
+padding:12px;
+border-radius:12px;
+border:1px solid #ddd;
+font-size:16px;
+background:#fff;
+}
+
+.year-row{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+.year-row select{
+flex:1;
+}
+
 .quick-brands{
 display:grid;
 grid-template-columns:repeat(2,1fr);
@@ -126,10 +145,12 @@ border-color:#0d6efd;
 }
 
 .info-box{
-background:#f4f7ff;
-padding:12px;
-border-radius:12px;
+background:linear-gradient(135deg,#f8fbff,#eef4ff);
+padding:14px;
+border-radius:16px;
 margin-top:10px;
+border:1.5px solid #dbe4ff;
+box-shadow:0 8px 22px rgba(13,110,253,.08);
 }
 
 .info-row{
@@ -139,16 +160,7 @@ margin-bottom:8px;
 gap:10px;
 }
 
-.bottom-bar{
-position:fixed;
-bottom:0;
-right:0;
-left:0;
-background:#fff;
-border-top:1px solid #eee;
-padding:12px;
-z-index:10;
-}
+.bottom-bar{ position:fixed; bottom:12px; right:0; left:0; background:#fff; border-top:1px solid #eee; padding:12px; z-index:10; }
 
 .bottom-wrap{
 max-width:600px;
@@ -173,7 +185,32 @@ color:#fff;
 }
 
 .btn-secondary{
-background:#eee;
+background:linear-gradient(135deg,#f8fbff,#eef4ff);
+color:#0d6efd;
+border:1.5px solid #dbe4ff;
+box-shadow:0 8px 22px rgba(13,110,253,.08);
+}
+
+.year-btn-save{
+width:48px;
+height:48px;
+border:none;
+border-radius:12px;
+background:linear-gradient(135deg,#0d6efd,#0b5ed7);
+color:#fff;
+font-size:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+box-shadow:0 8px 18px rgba(13,110,253,.20);
+transition:.2s ease;
+flex:0 0 48px;
+}
+
+.year-btn-save:hover{
+transform:translateY(-1px);
+box-shadow:0 10px 22px rgba(13,110,253,.26);
 }
 
 /* شاشة البحث */
@@ -197,10 +234,20 @@ margin-bottom:12px;
 
 #searchInput{
 flex:1;
-padding:14px;
-border-radius:14px;
-border:1px solid #ddd;
+padding:14px 16px;
+border-radius:16px;
+border:1.5px solid #dbe4ff;
 font-size:16px;
+background:linear-gradient(135deg,#f8fbff,#eef4ff);
+color:#0f172a;
+outline:none;
+box-shadow:0 8px 22px rgba(13,110,253,.08);
+transition:.25s ease;
+}
+
+#searchInput:focus{
+border-color:#0d6efd;
+box-shadow:0 0 0 4px rgba(13,110,253,.12),0 10px 25px rgba(13,110,253,.10);
 }
 
 #searchResults{
@@ -211,15 +258,22 @@ background:#fff;
 }
 
 .search-item{
-padding:10px 12px;
-border-bottom:1px solid #eee;
+padding:12px 14px;
+border:1px solid #edf2ff;
+border-radius:14px;
 cursor:pointer;
 font-size:15px;
 line-height:1.2;
+background:#fff;
+margin-bottom:8px;
+transition:.2s ease;
 }
 
 .search-item:hover{
-background:#f5f7fa;
+background:#f8fbff;
+border-color:#cfe0ff;
+transform:translateY(-1px);
+box-shadow:0 6px 16px rgba(13,110,253,.08);
 }
 
 .search-item.select-mode{
@@ -239,13 +293,14 @@ accent-color:#0d6efd;
 }
 
 .search-brand-box{
-background:#f4f7ff;
-border:1px solid #dbe4ff;
+background:linear-gradient(135deg,#f8fbff,#eef4ff);
+border:1.5px solid #dbe4ff;
 padding:12px 14px;
-border-radius:14px;
+border-radius:16px;
 margin-bottom:12px;
 font-weight:800;
 color:#0d6efd;
+box-shadow:0 8px 22px rgba(13,110,253,.08);
 }
 
 .search-actions{
@@ -373,12 +428,144 @@ background:#e9ecef;
 border-radius:999px;
 overflow:hidden;
 }
-
 #statusBar{
 width:0%;
 height:100%;
 background:#0d6efd;
 transition:width .35s ease;
+}
+/* حركة جاري */
+@keyframes pulse {
+0% { transform: scale(1); }
+50% { transform: scale(1.03); }
+100% { transform: scale(1); }
+}
+
+/* حركة تم */
+@keyframes glow {
+0% { box-shadow: 0 0 0 rgba(34,197,94,0); }
+50% { box-shadow: 0 0 12px rgba(34,197,94,.4); }
+100% { box-shadow: 0 0 0 rgba(34,197,94,0); }
+}
+
+  
+  #statusLog div{
+display:flex;
+align-items:center;
+gap:8px;
+
+background:#ffffff;
+border:1px solid #e6e9ef;
+padding:8px 12px;
+border-radius:12px;
+margin-bottom:6px;
+
+font-size:14px;
+font-weight:600;
+
+box-shadow:0 4px 10px rgba(0,0,0,.04);
+
+opacity:0;
+transform:translateY(-6px);
+animation:fadeSlide .3s ease forwards;
+}
+
+@keyframes fadeSlide{
+to{
+  opacity:1;
+  transform:translateY(0);
+}
+}
+@keyframes pulseStrong {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(13,110,253,0); }
+  50% { transform: scale(1.035); box-shadow: 0 0 18px rgba(13,110,253,.18); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(13,110,253,0); }
+}
+
+@keyframes glowStrong {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
+  50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(34,197,94,.35); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(34,197,94,0); }
+}
+
+@keyframes shakeSoft {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(2px); }
+  40% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+  80% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes barShine {
+  0% { left: 120%; }
+  100% { left: -35%; }
+}
+
+
+#statusCard {
+  transition: .25s ease;
+  margin-top: 15px;
+}
+
+#statusCard.processing{
+  border: 1px solid #dbe4ff;
+  box-shadow: 0 10px 28px rgba(13,110,253,.10);
+}
+
+#statusCard.done{
+  border: 1px solid #d9fbe6;
+  box-shadow: 0 10px 28px rgba(34,197,94,.12);
+}
+
+#statusCard.error{
+  border: 1px solid #ffd5d5;
+  box-shadow: 0 10px 28px rgba(220,38,38,.12);
+}
+
+.status-track{
+  position: relative;
+  width:100%;
+  height:10px;
+  background:#e9ecef;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+#statusBar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#0d6efd,#4f8cff,#0d6efd);
+  background-size: 200% 100%;
+  transition: width .45s ease;
+  position: relative;
+}
+
+#statusBar::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-35%;
+  width:35%;
+  height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);
+  animation: barShine 1.8s linear infinite;
+}
+
+#statusText{
+  transition:.2s ease;
+}
+
+#statusLog div.running{
+  animation: fadeSlide .3s ease forwards, pulseStrong 1.2s infinite;
+}
+
+#statusLog div.done{
+  animation: fadeSlide .3s ease forwards, glowStrong .8s ease;
+}
+
+#statusLog div.error{
+  animation: fadeSlide .3s ease forwards, shakeSoft .35s ease;
 }
 </style>
 </head>
@@ -393,6 +580,11 @@ transition:width .35s ease;
   <div class="sidebar-item" onclick="document.getElementById('excelFile').click(); toggleSidebar();">
     <i class="bi bi-file-earmark-excel"></i>
     <span>استيراد Excel</span>
+  </div>
+
+  <div class="sidebar-item" onclick="restartBayanFromWeb(); toggleSidebar();">
+    <i class="bi bi-arrow-clockwise"></i>
+    <span>إعادة تشغيل البيان</span>
   </div>
 
   <div class="sidebar-item" onclick="deleteSavedData(); toggleSidebar();">
@@ -418,60 +610,73 @@ transition:width .35s ease;
     </div>
   </div>
 
-  <div class="card">
-    <div class="section-title">
-      <i class="bi bi-person"></i>
-      بيانات الطلب
+  
+
+    <div class="input-group">
+     
+
+      <div class="year-row">
+        <select id="yearSelect">
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+          <option value="2023">2023</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026" selected>2026</option>
+        </select>
+
+        <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
+          <i class="bi bi-check2-circle"></i>
+        </button>
+      </div>
     </div>
 
     <div class="input-group">
-      <label>اختر البراند</label>
-
+      
       <div class="quick-brands">
         <button type="button" class="brand-btn" onclick="setBrand('FOREVER',this)">FOREVER</button>
         <button type="button" class="brand-btn" onclick="setBrand('CHARACTER',this)">CHARACTER</button>
         <button type="button" class="brand-btn" onclick="setBrand('ROSELLA',this)">ROSELLA</button>
-        <button type="button" class="brand-btn" onclick="setBrand('FUTURE',this)">FUTURE</button>
+        <button type="button" class="brand-btn" onclick="setBrand('ALL',this)">الكل</button>
       </div>
     </div>
 
-    <div class="input-group">
-      <label>اسم الزبون</label>
-      <input type="text" id="customerName" placeholder="اضغط للبحث" onclick="openSearch()" readonly>
-    </div>
+<div class="input-group">
+  <input type="text" id="customerName" placeholder="اضغط للبحث" onclick="openSearch()" readonly>
+</div>
+
+<div class="info-box">
+  <div class="info-row">
+    <div>البراند</div>
+    <div id="previewBrand">—</div>
   </div>
 
-  <div class="card">
-    <div class="section-title">
-      <i class="bi bi-eye"></i>
-      المعاينة
-    </div>
+  <div class="info-row">
+    <div>اسم الزبون</div>
+    <div id="previewCustomer">—</div>
+  </div>
+</div>
 
-    <div class="info-box">
-      <div class="info-row">
-        <div>البراند</div>
-        <div id="previewBrand">—</div>
-      </div>
-
-      <div class="info-row">
-        <div>اسم الزبون</div>
-        <div id="previewCustomer">—</div>
-      </div>
-    </div>
+<div id="statusCard" class="card" style="display:none;">
+  <div class="section-title">
+    <i class="bi bi-hourglass-split"></i>
+    حالة الطلب
   </div>
 
-  <div id="statusCard" class="card" style="display:none;">
-    <div class="section-title">
-      <i class="bi bi-hourglass-split"></i>
-      حالة الطلب
-    </div>
+  <div id="statusText">جاري إرسال الطلب...</div>
 
-    <div id="statusText">جاري إرسال الطلب...</div>
+  <div id="statusLog" style="
+    font-size:14px;
+    line-height:1.8;
+    margin-bottom:10px;
+    color:#444;
+  "></div>
 
-    <div class="status-track">
-      <div id="statusBar"></div>
-    </div>
+  <div class="status-track">
+    <div id="statusBar"></div>
   </div>
+</div>
 
 </div>
 
@@ -551,6 +756,8 @@ const searchBrandTitle = document.getElementById("searchBrandTitle");
 const statusCard = document.getElementById("statusCard");
 const statusText = document.getElementById("statusText");
 const statusBar = document.getElementById("statusBar");
+const statusLog = document.getElementById("statusLog");
+let lastRestartMessage = "";
 const startSelectBtn = document.getElementById("startSelectBtn");
 const selectionTools = document.getElementById("selectionTools");
 const selectedCountBox = document.getElementById("selectedCountBox");
@@ -619,11 +826,47 @@ function clearSelectedCustomers(){
 window.clearSelectedCustomers = clearSelectedCustomers;
 
 function selectAllVisible(){
-  currentFilteredResults.forEach(name => selectedCustomers.add(name));
+  currentFilteredResults.forEach(item => {
+    const key = getCustomerKey(item);
+    selectedCustomers.add(key);
+  });
+
   updateSelectedUI();
   renderResults(currentFilteredResults);
 }
 window.selectAllVisible = selectAllVisible;
+
+function getCustomersForSearch(){
+  if(selectedBrand !== "ALL"){
+    return [...(customersByBrand[selectedBrand] || [])].map(item => ({
+      id: item.id,
+      name: item.name,
+      brand: selectedBrand
+    }));
+  }
+
+  let allCustomers = [];
+
+  Object.keys(customersByBrand).forEach(brand => {
+    (customersByBrand[brand] || []).forEach(item => {
+      allCustomers.push({
+        id: item.id,
+        name: item.name,
+        brand: brand
+      });
+    });
+  });
+
+  return allCustomers;
+}
+
+function getCustomerKey(item){
+  if(typeof item === "number" || typeof item === "string"){
+    return String(item);
+  }
+
+  return String(item.id);
+}
 
 function openSearch(){
   if(!selectedBrand){
@@ -639,11 +882,70 @@ function openSearch(){
   selectedCustomers.clear();
   updateSelectedUI();
 
-  currentFilteredResults = [...(customersByBrand[selectedBrand] || [])];
+  currentFilteredResults = [...getCustomersForSearch()].sort((a, b) =>
+    String(a.name || "").localeCompare(String(b.name || ""), "ar")
+  );
+
   renderResults(currentFilteredResults);
   searchInput.focus();
 }
 window.openSearch = openSearch;
+
+function normalizeSearchText(text){
+  return String(text || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/\s+/g, " ")
+    .replace(/[-_]/g, "")
+    .replace(/[^\w\u0600-\u06FF ]/g, "");
+}
+
+function scoreCustomerMatch(name, query){
+  const normalizedName = normalizeSearchText(name);
+  const normalizedQuery = normalizeSearchText(query);
+
+  if(!normalizedQuery) return 1;
+
+  const compactName = normalizedName.replace(/\s/g, "");
+  const compactQuery = normalizedQuery.replace(/\s/g, "");
+
+  let score = 0;
+
+  if(compactName === compactQuery) score += 1000;
+  if(normalizedName === normalizedQuery) score += 950;
+
+  if(compactName.startsWith(compactQuery)) score += 700;
+  if(normalizedName.startsWith(normalizedQuery)) score += 650;
+
+  if(compactName.includes(compactQuery)) score += 500;
+  if(normalizedName.includes(normalizedQuery)) score += 450;
+
+  const words = normalizedName.split(" ").filter(Boolean);
+  const queryWords = normalizedQuery.split(" ").filter(Boolean);
+
+  queryWords.forEach(qWord => {
+    words.forEach(word => {
+      if(word === qWord) score += 120;
+      else if(word.startsWith(qWord)) score += 80;
+      else if(word.includes(qWord)) score += 40;
+    });
+  });
+
+  const allQueryWordsExist = queryWords.every(qWord =>
+    words.some(word => word.includes(qWord))
+  );
+
+  if(allQueryWordsExist && queryWords.length > 1){
+    score += 300;
+  }
+
+  return score;
+}
 
 function closeSearch(){
   overlay.style.display = "none";
@@ -654,10 +956,27 @@ function closeSearch(){
 window.closeSearch = closeSearch;
 
 searchInput.addEventListener("input", () => {
-  const text = searchInput.value.trim().toLowerCase();
-  currentFilteredResults = (customersByBrand[selectedBrand] || []).filter(name =>
-    String(name).toLowerCase().includes(text)
-  );
+  const text = searchInput.value;
+  const allCustomers = getCustomersForSearch();
+
+  if(!normalizeSearchText(text)){
+    currentFilteredResults = [...allCustomers].sort((a, b) =>
+      String(a.name || "").localeCompare(String(b.name || ""), "ar")
+    );
+
+    renderResults(currentFilteredResults);
+    return;
+  }
+
+  currentFilteredResults = allCustomers
+    .map(item => ({
+      item,
+      score: scoreCustomerMatch(item.name, text)
+    }))
+    .filter(entry => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(entry => entry.item);
+
   renderResults(currentFilteredResults);
 });
 
@@ -669,7 +988,25 @@ function renderResults(list){
     return;
   }
 
-  list.forEach(name => {
+  if(list.length > 100){
+    const note = document.createElement("div");
+    note.className = "search-item";
+    note.style.fontWeight = "800";
+    note.style.background = "#fff8e1";
+    note.innerText = "تم عرض أول 100 نتيجة من أصل " + list.length;
+    results.appendChild(note);
+  }
+
+  list.slice(0, 100).forEach(item => {
+    const isObjectItem = typeof item === "object" && item !== null;
+    const name = isObjectItem ? item.name : "";
+    const itemBrand = isObjectItem ? item.brand : selectedBrand;
+
+    let displayName = name;
+    if(selectedBrand === "ALL"){
+      displayName = name + " — " + itemBrand;
+    }
+
     const div = document.createElement("div");
     div.className = "search-item" + (selectionMode ? " select-mode" : "");
 
@@ -677,43 +1014,59 @@ function renderResults(list){
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.className = "search-checkbox";
-      checkbox.checked = selectedCustomers.has(name);
+
+      const key = getCustomerKey(item);
+      checkbox.checked = selectedCustomers.has(key);
 
       checkbox.addEventListener("click", (e) => {
         e.stopPropagation();
       });
 
       checkbox.addEventListener("change", () => {
-        if(checkbox.checked){
-          selectedCustomers.add(name);
+        if(selectedCustomers.has(key)){
+          selectedCustomers.delete(key);
         }else{
-          selectedCustomers.delete(name);
+          selectedCustomers.add(key);
         }
         updateSelectedUI();
       });
 
       const span = document.createElement("div");
       span.className = "search-item-name";
-      span.innerText = name;
+      span.innerText = displayName;
 
       div.appendChild(checkbox);
       div.appendChild(span);
 
       div.onclick = () => {
-        if(selectedCustomers.has(name)){
-          selectedCustomers.delete(name);
+        if(selectedCustomers.has(key)){
+          selectedCustomers.delete(key);
         }else{
-          selectedCustomers.add(name);
+          selectedCustomers.add(key);
         }
         updateSelectedUI();
         renderResults(currentFilteredResults);
       };
     }else{
-      div.innerText = name;
+      div.innerText = displayName;
 
       div.onclick = () => {
         document.getElementById("customerName").value = name;
         previewCustomer.textContent = name;
+
+        if(selectedBrand === "ALL"){
+          selectedBrand = itemBrand;
+          previewBrand.textContent = itemBrand;
+
+          document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
+          const btns = document.querySelectorAll(".brand-btn");
+          btns.forEach(btn => {
+            if(btn.textContent.trim().toUpperCase() === itemBrand){
+              btn.classList.add("active");
+            }
+          });
+        }
+
         closeSearch();
       };
     }
@@ -746,10 +1099,13 @@ function updateStatus(status, current = null, total = null){
     statusText.textContent = "تم إنجاز الطلب بنجاح" + counterText;
     statusBar.style.width = "100%";
   } else if(status === "error"){
-    statusText.textContent = "صار خطأ أثناء معالجة الطلب" + counterText;
+    if(!statusText.textContent || statusText.textContent.includes("جاري")){
+      statusText.textContent = "صار خطأ أثناء معالجة الطلب" + counterText;
+    }
     statusBar.style.width = "100%";
   }
 }
+
 function waitForRequestCompletion(requestTime, current = null, total = null, timeoutMs = 180000){
   return new Promise((resolve, reject) => {
     const latestRef = ref(db, "requests/latest");
@@ -770,9 +1126,15 @@ function waitForRequestCompletion(requestTime, current = null, total = null, tim
         unsubscribe();
         resolve("done");
       } else if(data.status === "error"){
-        updateStatus("error", current, total);
+        if(data.message){
+          statusText.textContent = data.message;
+        } else {
+          updateStatus("error", current, total);
+        }
+
+        statusBar.style.width = "100%";
         unsubscribe();
-        reject(new Error("error"));
+        reject(new Error(data.message || "error"));
       }
 
       if(Date.now() - startedAt > timeoutMs){
@@ -829,6 +1191,15 @@ async function loadFirebaseCustomers(){
         ROSELLA: Array.isArray(firebaseData.ROSELLA) ? firebaseData.ROSELLA : [],
         FUTURE: Array.isArray(firebaseData.FUTURE) ? firebaseData.FUTURE : []
       };
+
+      Object.keys(customersByBrand).forEach(brand => {
+        customersByBrand[brand] = customersByBrand[brand].map(item => {
+          if(typeof item === "string"){
+            return { id: Date.now() + Math.random(), name: item };
+          }
+          return item;
+        });
+      });
     }else{
       customersByBrand = {
         FOREVER: [],
@@ -847,6 +1218,64 @@ async function loadFirebaseCustomers(){
     };
   }
 }
+
+async function sendYearToFirebase(){
+  const year = document.getElementById("yearSelect").value;
+
+  try{
+    showStatusCard();
+    statusText.textContent = "جاري إرسال السنة...";
+    statusBar.style.width = "20%";
+
+    await set(ref(db, "systemCommands/changeYear"), {
+      year: year,
+      status: "new",
+      time: Date.now()
+    });
+
+    waitForYearChange();
+  }catch(error){
+    showStatusCard();
+    statusText.textContent = "صار خطأ بإرسال السنة";
+    statusBar.style.width = "100%";
+    alert("صار خطأ بإرسال السنة");
+  }
+}
+window.sendYearToFirebase = sendYearToFirebase;
+
+async function restartBayanFromWeb() {
+  try {
+    showStatusCard();
+    statusCard.classList.remove("processing", "done", "error");
+    statusCard.classList.add("processing");
+    
+    statusText.textContent = "جاري إرسال أمر إعادة التشغيل...";
+    statusText.style.color = "#0d6efd";
+    statusLog.innerHTML = "";
+    lastRestartMessage = "";
+    statusBar.style.width = "8%";
+    
+    addStatusLog("جاري إرسال أمر إعادة التشغيل");
+    
+    await set(ref(db, "systemCommands/restartBayan"), {
+      action: "restart",
+      time: Date.now(),
+      status: "new"
+    });
+    
+    waitForRestartBayan();
+    
+  } catch (error) {
+    statusCard.classList.remove("processing", "done");
+    statusCard.classList.add("error");
+    statusText.textContent = "صار خطأ بإرسال أمر إعادة التشغيل";
+    statusText.style.color = "#dc2626";
+    statusBar.style.width = "100%";
+    addStatusLog("خطأ في إرسال أمر إعادة التشغيل");
+    alert("صار خطأ بإرسال أمر إعادة التشغيل");
+  }
+}
+window.restartBayanFromWeb = restartBayanFromWeb;
 
 async function deleteSavedData(){
   const password = prompt("ادخل الباسورد لحذف البيانات");
@@ -878,52 +1307,82 @@ async function deleteSavedData(){
 }
 window.deleteSavedData = deleteSavedData;
 
-document.getElementById("excelFile").addEventListener("change", function(e){
+document.getElementById("excelFile").addEventListener("change", function(e) {
   const file = e.target.files[0];
-  if(!file) return;
-
+  if (!file) return;
+  
   const reader = new FileReader();
-
-  reader.onload = async function(evt){
-    try{
+  
+  reader.onload = async function(evt) {
+    try {
       const data = new Uint8Array(evt.target.result);
-      const workbook = XLSX.read(data, {type:"array"});
+      const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet);
-
-      if(!rows.length){
+      
+      if (!rows.length) {
         alert("فشل الاستيراد: ملف الإكسل فارغ");
         return;
       }
-
+      
       const firstRow = rows[0];
       const hasName = Object.prototype.hasOwnProperty.call(firstRow, "الاسم");
-      const hasBrand = Object.prototype.hasOwnProperty.call(firstRow, "البراند");
-
-      if(!hasName || !hasBrand){
-        alert("فشل الاستيراد: لازم تكون الأعمدة باسم (الاسم) و(البراند)");
+      const hasBrandFull = Object.prototype.hasOwnProperty.call(firstRow, "البراند");
+      const hasBrandShort = Object.prototype.hasOwnProperty.call(firstRow, "براند");
+      const hasBrand = hasBrandFull || hasBrandShort;
+      
+      if (!hasName && !hasBrand) {
+        alert("فشل الاستيراد: الملف ما بيه عمود (الاسم) ولا عمود (البراند/براند)");
         return;
       }
-
+      
+      if (!hasName) {
+        alert("فشل الاستيراد: العمود المطلوب (الاسم) مفقود");
+        return;
+      }
+      
+      if (!hasBrand) {
+        alert("فشل الاستيراد: العمود المطلوب للبراند لازم يكون باسم (البراند) أو (براند)");
+        return;
+      }
+      
       let importedCount = 0;
       let skippedCount = 0;
-
+      let errorMessages = [];
+      
       const updatedCustomersByBrand = {
         FOREVER: Array.isArray(customersByBrand.FOREVER) ? [...customersByBrand.FOREVER] : [],
         CHARACTER: Array.isArray(customersByBrand.CHARACTER) ? [...customersByBrand.CHARACTER] : [],
         ROSELLA: Array.isArray(customersByBrand.ROSELLA) ? [...customersByBrand.ROSELLA] : [],
         FUTURE: Array.isArray(customersByBrand.FUTURE) ? [...customersByBrand.FUTURE] : []
       };
-
-      rows.forEach((row) => {
+      
+      let maxId = 0;
+      Object.keys(updatedCustomersByBrand).forEach(brandKey => {
+        (updatedCustomersByBrand[brandKey] || []).forEach(item => {
+          const itemId = Number(item.id || 0);
+          if (itemId > maxId) maxId = itemId;
+        });
+      });
+      
+      rows.forEach((row, index) => {
+        const rowNumber = index + 2;
+        
         const name = String(row["الاسم"] || "").trim();
-        let brand = String(row["البراند"] || "").trim().toUpperCase();
-
-        if(!name || !brand){
+        let brand = String(row["البراند"] || row["براند"] || "").trim().toUpperCase();
+        
+        if (!name) {
           skippedCount++;
+          errorMessages.push("السطر " + rowNumber + ": الاسم فارغ");
           return;
         }
-
+        
+        if (!brand) {
+          skippedCount++;
+          errorMessages.push("السطر " + rowNumber + ": البراند فارغ");
+          return;
+        }
+        
         if (
           brand === "ROZLA" ||
           brand === "ROSELLA" ||
@@ -957,38 +1416,64 @@ document.getElementById("excelFile").addEventListener("change", function(e){
           brand = "FUTURE";
         } else {
           skippedCount++;
+          errorMessages.push("السطر " + rowNumber + ": براند غير معروف → " + brand);
           return;
         }
-
-        if(!updatedCustomersByBrand[brand].includes(name)){
-          updatedCustomersByBrand[brand].push(name);
-          importedCount++;
+        
+        const alreadyExists = updatedCustomersByBrand[brand].some(item =>
+          String(item.name).trim() === name
+        );
+        
+        if (alreadyExists) {
+          skippedCount++;
+          errorMessages.push("السطر " + rowNumber + ": الاسم مكرر → " + name);
+          return;
         }
+        
+        maxId++;
+        updatedCustomersByBrand[brand].push({
+          id: maxId,
+          name: name
+        });
+        importedCount++;
       });
-
-      if(importedCount === 0){
-        alert("فشل الاستيراد: ما تم استيراد أي اسم جديد");
+      
+      if (importedCount === 0) {
+        let details = errorMessages.length ? "\n\nالأسباب:\n- " + errorMessages.join("\n- ") : "";
+        alert("فشل الاستيراد: ما تم استيراد أي اسم جديد" + details);
         return;
       }
-
+      
       customersByBrand = updatedCustomersByBrand;
       await saveCustomersToFirebase(customersByBrand);
-
-      alert("تم الاستيراد السحابي بنجاح. عدد الأسماء الجديدة: " + importedCount + (skippedCount ? " | أسطر مهملة: " + skippedCount : ""));
-    }catch(error){
+      
+      let successMsg = "تم الاستيراد السحابي بنجاح. عدد الأسماء الجديدة: " + importedCount;
+      
+      if (skippedCount) {
+        successMsg += "\nالأسطر المهملة: " + skippedCount;
+      }
+      
+      if (errorMessages.length) {
+        successMsg += "\n\nتفاصيل الأسطر المهملة:\n- " + errorMessages.join("\n- ");
+      }
+      
+      alert(successMsg);
+      
+    } catch (error) {
       alert("فشل الاستيراد: " + error.message);
-    }finally{
+    } finally {
       e.target.value = "";
     }
   };
-
-  reader.onerror = function(){
+  
+  reader.onerror = function() {
     alert("فشل الاستيراد: تعذر قراءة الملف");
     e.target.value = "";
   };
-
+  
   reader.readAsArrayBuffer(file);
 });
+
 
 async function submitRequest(){
   const customer = document.getElementById("customerName").value.trim();
@@ -1018,6 +1503,7 @@ async function submitRequest(){
     alert("صار خطأ بالإرسال");
   }
 }
+window.submitRequest = submitRequest;
 
 async function sendSelectedCustomers(){
   if(selectedCustomers.size === 0){
@@ -1025,40 +1511,54 @@ async function sendSelectedCustomers(){
     return;
   }
 
-  if(!selectedBrand){
-    alert("اختر البراند اولاً");
-    return;
-  }
+  const selectedIds = Array.from(selectedCustomers);
+  const total = selectedIds.length;
 
-  const names = Array.from(selectedCustomers);
-  const total = names.length;
-
-  // نرجع للواجهة الرئيسية مباشرة
   closeSearch();
 
   for(let i = 0; i < total; i++){
-    const customer = names[i];
+    const id = String(selectedIds[i]);
     const current = i + 1;
+
+    let foundItem = null;
+    let foundBrand = "";
+
+    Object.keys(customersByBrand).forEach(brand => {
+      const item = (customersByBrand[brand] || []).find(x => String(x.id) === id);
+      if(item && !foundItem){
+        foundItem = item;
+        foundBrand = brand;
+      }
+    });
+
+    if(!foundItem){
+      alert("ما لكيت السجل المحدد: " + id);
+      return;
+    }
+
+    const customer = foundItem.name;
+    const brand = foundBrand;
 
     try{
       document.getElementById("customerName").value = customer;
       previewCustomer.textContent = customer;
+      previewBrand.textContent = brand;
 
       showStatusCard();
       updateStatus("sending", current, total);
 
       const requestTime = await sendRequestToFirebase(
-        customer + " | " + selectedBrand,
+        customer + " | " + brand,
         customer,
-        selectedBrand
+        brand
       );
 
       await waitForRequestCompletion(requestTime, current, total);
 
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }catch(error){
       updateStatus("error", current, total);
-      alert("توقف الإرسال عند الزبون: " + customer);
+      alert("توقف الإرسال عند الزبون: " + customer + " / " + brand);
       return;
     }
   }
@@ -1067,8 +1567,170 @@ async function sendSelectedCustomers(){
 }
 window.sendSelectedCustomers = sendSelectedCustomers;
 
-window.submitRequest = submitRequest;
+function waitForYearChange(){
+  const yearRef = ref(db, "systemCommands/changeYear");
 
+  const unsubscribe = onValue(yearRef, (snapshot) => {
+    if(!snapshot.exists()) return;
+
+    const data = snapshot.val();
+    if(!data) return;
+
+    if(data.status === "new"){
+      showStatusCard();
+      statusText.textContent = "تم إرسال السنة، بانتظار التنفيذ...";
+      statusBar.style.width = "35%";
+    }
+    else if(data.status === "processing"){
+      showStatusCard();
+      statusText.textContent = "جاري تغيير السنة...";
+      statusBar.style.width = "70%";
+    }
+    else if(data.status === "done"){
+      showStatusCard();
+      statusText.textContent = "تم تغيير السنة بنجاح";
+      statusBar.style.width = "100%";
+
+      setTimeout(() => {
+        statusCard.style.display = "none";
+        statusBar.style.width = "0%";
+      }, 1500);
+
+      unsubscribe();
+    }
+    else if(data.status === "error"){
+      showStatusCard();
+      statusText.textContent = data.message || "صار خطأ أثناء تغيير السنة";
+      statusBar.style.width = "100%";
+      unsubscribe();
+    }
+  });
+}
+
+
+function addStatusLog(message) {
+  if (!message) return;
+  
+  let prefix = "• ";
+  let color = "#444";
+  let rowClass = "";
+  let bg = "#ffffff";
+  let borderColor = "#e6e9ef";
+  
+  if (message.includes("تم")) {
+    prefix = "✅ ";
+    color = "#15803d";
+    rowClass = "done";
+    bg = "#ecfdf3";
+    borderColor = "#bbf7d0";
+  }
+  else if (message.includes("جاري")) {
+    prefix = "🔄 ";
+    color = "#0d6efd";
+    rowClass = "running";
+    bg = "#eef4ff";
+    borderColor = "#cfe0ff";
+  }
+  else if (message.includes("فشل") || message.includes("خطأ")) {
+    prefix = "❌ ";
+    color = "#dc2626";
+    rowClass = "error";
+    bg = "#fef2f2";
+    borderColor = "#fecaca";
+  }
+  
+  statusLog.innerHTML = "";
+  
+  const row = document.createElement("div");
+  row.className = rowClass;
+  row.innerHTML = `<span style="font-size:16px">${prefix}</span><span>${message}</span>`;
+  row.style.color = color;
+  row.style.background = bg;
+  row.style.borderColor = borderColor;
+  
+  statusLog.appendChild(row);
+}
+
+
+
+function waitForRestartBayan() {
+  const restartRef = ref(db, "systemCommands/restartBayan");
+  
+  const unsubscribe = onValue(restartRef, (snapshot) => {
+    if (!snapshot.exists()) return;
+    
+    const data = snapshot.val();
+    if (!data) return;
+    
+    if (data.message && data.message !== lastRestartMessage) {
+      addStatusLog(data.message);
+      lastRestartMessage = data.message;
+    }
+    
+    statusCard.classList.remove("processing", "done", "error");
+    
+    if (data.status === "new") {
+      statusCard.classList.add("processing");
+      statusText.textContent = "تم بدء إعادة التشغيل...";
+      statusText.style.color = "#0d6efd";
+      statusBar.style.width = "12%";
+    }
+    else if (data.status === "processing") {
+      statusCard.classList.add("processing");
+      statusText.textContent = "جاري تنفيذ إعادة التشغيل...";
+      statusText.style.color = "#0d6efd";
+      
+      if (data.message) {
+        if (data.message.includes("فور افر") || data.message.includes("فورافر") || data.message.includes("FOREVER")) {
+          statusBar.style.width = "33%";
+        }
+        else if (data.message.includes("كاركتر") || data.message.includes("CHARACTER")) {
+          statusBar.style.width = "66%";
+        }
+        else if (data.message.includes("روزلا") || data.message.includes("ROSELLA")) {
+          statusBar.style.width = "90%";
+        }
+        else {
+          statusBar.style.width = "20%";
+        }
+      } else {
+        statusBar.style.width = "20%";
+      }
+    }
+    else if (data.status === "done") {
+      statusCard.classList.add("done");
+      statusText.textContent = "اكتملت إعادة التشغيل";
+      statusText.style.color = "#15803d";
+      statusBar.style.width = "100%";
+      
+      addStatusLog("تمت إعادة تشغيل البيان بالكامل");
+      
+      setTimeout(() => {
+        statusCard.style.display = "none";
+        statusBar.style.width = "0%";
+        statusLog.innerHTML = "";
+        lastRestartMessage = "";
+        statusCard.classList.remove("processing", "done", "error");
+        statusText.style.color = "";
+      }, 2500);
+      
+      unsubscribe();
+    }
+    else if (data.status === "error") {
+      statusCard.classList.add("error");
+      statusText.textContent = data.message || "صار خطأ أثناء إعادة التشغيل";
+      statusText.style.color = "#dc2626";
+      statusBar.style.width = "100%";
+      
+      if (data.message && data.message !== lastRestartMessage) {
+        addStatusLog(data.message);
+        lastRestartMessage = data.message;
+      }
+      
+      unsubscribe();
+    }
+  });
+}
 await loadFirebaseCustomers();
 </script>
 

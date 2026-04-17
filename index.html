@@ -1,82 +1,71 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فتح رابط الاختصار</title>
+    <title>مدير الملفات</title>
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+            font-family: system-ui, -apple-system;
             margin: 0;
-            padding: 20px;
+            padding: 16px;
         }
         .card {
             background: white;
-            border-radius: 30px;
-            padding: 40px;
+            border-radius: 32px;
+            padding: 40px 24px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             max-width: 350px;
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            font-size: 22px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
             width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
-        button:active {
+        h1 {
+            font-size: 28px;
+            margin: 10px 0;
+            color: #1c1c1e;
+        }
+        .shortcut-link {
+            display: inline-block;
+            background: #007aff;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 14px;
+            text-decoration: none;
+            margin: 20px 0 10px;
+            width: 80%;
+        }
+        .shortcut-link:active {
             transform: scale(0.97);
+            background: #005fc1;
         }
-        .link {
+        .note {
+            font-size: 12px;
+            color: #8e8e93;
             margin-top: 20px;
-            font-size: 11px;
-            color: #999;
-            word-break: break-all;
-        }
-        .status {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #764ba2;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>⚡ فتح الاختصار</h1>
-        <p>اضغط الزر لفتح رابط iCloud</p>
-        
-        <button onclick="openShortcut()">
-            🚀 افتح الاختصار
-        </button>
-        
-        <div class="status" id="status"></div>
-        <div class="link">
-            الرابط: https://www.icloud.com/shortcuts/a8426d05ced04db292d849a1bf0ffe69
-        </div>
+<div class="card">
+    <div style="font-size: 60px;">📁</div>
+    <h1>مدير الملفات</h1>
+    <p>اضغط على الزر لفتح الاختصار</p>
+    
+    <!-- هذا هو الزر السحري - رابط مباشر وليس زر JavaScript -->
+    <a href="shortcuts://run-shortcut?name=%D9%85%D8%AF%D9%8A%D8%B1%20%D8%A7%D9%84%D9%85%D9%84%D9%81%D8%A7%D8%AA" class="shortcut-link">
+        🚀 افتح الاختصار
+    </a>
+    
+    <div class="note">
+        سيفتح تطبيق "الاختصارات" مباشرة
     </div>
-
-    <script>
-        function openShortcut() {
-            let statusDiv = document.getElementById("status");
-            statusDiv.innerHTML = "⏳ جاري الفتح...";
-            
-            // الرابط اللي أعطيتني إياه (حتى لو ما يشتغل)
-            window.location.href = "https://www.icloud.com/shortcuts/a8426d05ced04db292d849a1bf0ffe69";
-            
-            setTimeout(function() {
-                statusDiv.innerHTML = "✅ تم محاولة فتح الرابط";
-            }, 1000);
-        }
-    </script>
+</div>
 </body>
 </html>

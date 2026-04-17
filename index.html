@@ -1,31 +1,31 @@
-تفهمت طلبك! تريد استبدال زر "صفحة الملفات" الموجود حاليًا (الذي يفتح صفحة منفصلة لاختيار الملفات) بزر يفتح اختصار "مدير الملفات" على iPhone مباشرة.
-
-هذا هو الكود المعدل. قمت بإزالة صفحة الملفات بالكامل، واستبدلت الزر العلوي بزر يفتح الاختصار shortcuts:// مباشرة.
-
-```html
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
+
   <title>طلب كشف حساب</title>
-  
+
   <!-- الأيقونة -->
+
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
-  
+
   <!-- وضع التطبيق -->
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="كشف حساب">
-  
+
   <!-- لون المتصفح -->
+
   <meta name="theme-color" content="#0d6efd">
-  
+
   <!-- مكتبات -->
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
@@ -1192,28 +1192,8 @@ body{
   display:none;
 }
 
-.shortcut-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: linear-gradient(135deg, #f8fbff, #eef4ff);
-  border: 1.5px solid #dbe4ff;
-}
-.shortcut-card:active {
-  transform: scale(0.98);
-}
-.shortcut-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: #0d6efd;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
 </style>
+
 </head>
 
 <body>
@@ -1252,29 +1232,32 @@ body{
       <h1>طلب كشف حساب</h1>
     </div>
 
-    <div class="logo">
-      <i class="bi bi-receipt"></i>
-    </div>
+```
+<div class="logo">
+  <i class="bi bi-receipt"></i>
+</div>
+```
+
   </div>
 
-  
-  <!-- زر فتح اختصار مدير الملفات (تم استبدال صفحة الملفات به) -->
-  <div class="card shortcut-card" onclick="openFileManagerShortcut()">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="shortcut-icon">
-        <i class="bi bi-folder-symlink"></i>
+  <div class="card" style="padding:14px;margin-bottom:15px;cursor:pointer;" onclick="window.location.href='shortcuts://run-shortcut?name=m'">
+    <div style="display:flex;align-items:center;gap:12px;direction:ltr;">
+      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0d6efd,#4f8cff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">
+        <i class="bi bi-folder2-open"></i>
       </div>
       <div>
-        <div style="font-weight:800;font-size:16px;margin-bottom:4px;">📁 مدير الملفات</div>
-        <div style="font-size:13px;color:#6e7b96;">اضغط لفتح مدير الملفات مباشرة</div>
+        <div style="font-weight:800;font-size:16px;margin-bottom:4px;">صفحة الملفات</div>
+        <div style="font-size:13px;color:#6e7b96;">استعراض الملفات وتحديدها وإرسال المحدد</div>
       </div>
     </div>
   </div>
 
   <div class="input-group">
-     
 
-      <label>اختر السنة</label>
+```
+  <label>اختر السنة</label>
+```
+
 <div class="year-row">
         <select id="yearSelect">
           <option value="2020">2020</option>
@@ -1286,15 +1269,18 @@ body{
           <option value="2026" selected>2026</option>
         </select>
 
-        <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
-          <i class="bi bi-check2-circle"></i>
-        </button>
-      </div>
-    </div>
+```
+    <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
+      <i class="bi bi-check2-circle"></i>
+    </button>
+  </div>
+</div>
 
-    <div class="input-group">
-      
-      <label>اختر البراند</label>
+<div class="input-group">
+  
+  <label>اختر البراند</label>
+```
+
 <div class="quick-brands">
         <button type="button" class="brand-btn" onclick="setBrand('FOREVER',this)">FOREVER</button>
         <button type="button" class="brand-btn" onclick="setBrand('CHARACTER',this)">CHARACTER</button>
@@ -1331,19 +1317,22 @@ body{
         حالة الطلب
       </div>
 
-      <div id="statusText">جاري إرسال الطلب...</div>
+```
+  <div id="statusText">جاري إرسال الطلب...</div>
 
-      <div id="statusLog" style="
-        font-size:14px;
-        line-height:1.8;
-        margin-bottom:10px;
-        color:#444;
-      "></div>
+  <div id="statusLog" style="
+    font-size:14px;
+    line-height:1.8;
+    margin-bottom:10px;
+    color:#444;
+  "></div>
 
-      <div class="status-track">
-        <div id="statusBar"></div>
-      </div>
-    </div>
+  <div class="status-track">
+    <div id="statusBar"></div>
+  </div>
+</div>
+```
+
   </div>
 </div>
 
@@ -1369,11 +1358,14 @@ body{
   <div class="search-actions">
     <button type="button" class="mini-btn primary" id="startSelectBtn" onclick="startSelectionMode()">تحديد</button>
 
-    <div id="selectionTools" style="display:none;">
-      <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
-      <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
-      <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
-    </div>
+```
+<div id="selectionTools" style="display:none;">
+  <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
+  <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
+  <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
+</div>
+```
+
   </div>
 
   <div id="selectedCountBox" class="selected-count-box" style="display:none;">
@@ -1387,7 +1379,51 @@ body{
   </div>
 </div>
 
+</div>
 
+<div id="pageFiles" class="app-page" style="overflow-y:auto;height:100vh;">
+  <div class="container">
+    <div class="files-page-top">
+      <button class="files-back-btn" onclick="backToMainPage()"><i class="bi bi-arrow-right"></i></button>
+      <div class="files-title">الملفات</div>
+    </div>
+
+```
+<div class="card" style="margin-bottom:14px;">
+  <div class="section-title"><i class="bi bi-folder2-open"></i> إدارة الملفات</div>
+  <div style="font-size:13px;color:#6e7b96;line-height:1.8;margin-bottom:12px;">
+    اختر ملفات من الجهاز أو Google Drive أو iCloud، وبعدها تگدر تحددها وترسل المحدد.
+  </div>
+
+  <div class="files-tools">
+    <button class="btn btn-primary" type="button" onclick="openFilesPickerPage()">اختيار ملفات</button>
+    <button class="btn btn-secondary" type="button" onclick="openFolderPickerPage()">اختيار مجلد</button>
+  </div>
+
+  <div class="files-tools">
+    <button class="btn btn-secondary" type="button" onclick="selectAllPickedFiles()">تحديد الكل</button>
+    <button class="btn btn-secondary" type="button" onclick="clearPickedSelection()">إلغاء التحديد</button>
+  </div>
+
+  <div class="files-tools">
+    <button class="btn btn-secondary" type="button" onclick="clearPickedFiles()">مسح القائمة</button>
+  </div>
+
+  <div style="font-size:12px;color:#6e7b96;line-height:1.8;margin-top:4px;">
+    محاولة ربط أقرب للمجلد: زر <b>اختيار مجلد</b> قد يجلب كل ملفات المجلد دفعة واحدة إذا دعمه iPhone/المتصفح.
+  </div>
+
+  <input type="file" id="filesPageInput" class="hidden-native-input" multiple>
+  <input type="file" id="folderPageInput" class="hidden-native-input" webkitdirectory multiple>
+  <div id="filesPageList" class="file-empty">ماكو ملفات مختارة حالياً</div>
+</div>
+
+<div class="bottom-wrap" style="margin-top:10px;">
+  <button class="btn btn-primary" type="button" id="sendPickedFilesBtn" onclick="sendPickedFiles()" disabled>إرسال المحدد</button>
+</div>
+```
+
+  </div>
 </div>
 
 <script type="module">
@@ -1449,21 +1485,6 @@ function toggleSidebar(){
   document.getElementById("sidebarOverlay").classList.toggle("show");
 }
 window.toggleSidebar = toggleSidebar;
-
-// ========== دالة فتح اختصار مدير الملفات ==========
-window.openFileManagerShortcut = function() {
-  // الرابط الذي يعمل مباشرة
-  const shortcutUrl = 'shortcuts://run-shortcut?name=%D9%85%D8%AF%D9%8A%D8%B1%20%D8%A7%D9%84%D9%85%D9%84%D9%81%D8%A7%D8%AA';
-  
-  // الانتقال إلى الرابط
-  window.location.href = shortcutUrl;
-  
-  // رسالة مساعدة في حال لم يتم فتح التطبيق
-  setTimeout(() => {
-    // سيتم إضافة تنبيه اختياري إذا أردت
-  }, 1000);
-};
-// ==============================================
 
 function setBrand(brand, btn){
   selectedBrand = brand;
@@ -2792,35 +2813,195 @@ function checkSubmitReadyState(){
   }
 }
 
+
+let pickedFilesPage = [];
+let pickedFilesSelected = new Set();
+
+function openFilesPage(){
+  document.getElementById("pageMain").classList.remove("active");
+  document.getElementById("pageFiles").classList.add("active");
+}
+window.openFilesPage = openFilesPage;
+
+function backToMainPage(){
+  document.getElementById("pageFiles").classList.remove("active");
+  document.getElementById("pageMain").classList.add("active");
+}
+window.backToMainPage = backToMainPage;
+
+function openFilesPickerPage(){
+  const input = document.getElementById("filesPageInput");
+  if(input) input.click();
+}
+window.openFilesPickerPage = openFilesPickerPage;
+
+
+function openFolderPickerPage(){
+  const input = document.getElementById("folderPageInput");
+  if(input) input.click();
+}
+window.openFolderPickerPage = openFolderPickerPage;
+
+function normalizePickedFiles(files){
+  pickedFilesSelected.clear();
+  pickedFilesPage = Array.from(files || []).map((file, index) => ({
+    id: String(Date.now()) + "_" + index + "_" + file.name,
+    name: file.webkitRelativePath || file.name,
+    size: file.size || 0,
+    nativeFile: file
+  }));
+  renderPickedFilesPage();
+}
+
+function formatFilesPageSize(bytes){
+  if(bytes < 1024) return bytes + " B";
+  if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  if(bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+}
+
+function detectFilesPageType(name){
+  const lower = String(name || "").toLowerCase();
+  if(lower.endsWith(".pdf")) return "PDF";
+  if(lower.endsWith(".xlsx") || lower.endsWith(".xls") || lower.endsWith(".csv")) return "Excel";
+  if(lower.endsWith(".doc") || lower.endsWith(".docx")) return "Word";
+  if(lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp")) return "صورة";
+  return "ملف";
+}
+
+function getFilesPageIcon(type){
+  if(type === "PDF") return "bi-file-earmark-pdf-fill";
+  if(type === "Excel") return "bi-file-earmark-excel-fill";
+  if(type === "Word") return "bi-file-earmark-word-fill";
+  if(type === "صورة") return "bi-file-earmark-image-fill";
+  return "bi-file-earmark-fill";
+}
+
+function getFilesPageColor(type){
+  if(type === "PDF") return "linear-gradient(135deg,#ef4444,#fb7185)";
+  if(type === "Excel") return "linear-gradient(135deg,#16a34a,#22c55e)";
+  if(type === "Word") return "linear-gradient(135deg,#2563eb,#60a5fa)";
+  if(type === "صورة") return "linear-gradient(135deg,#7c3aed,#a78bfa)";
+  return "linear-gradient(135deg,#475569,#94a3b8)";
+}
+
+function updatePickedFilesButton(){
+  const btn = document.getElementById("sendPickedFilesBtn");
+  if(!btn) return;
+  const count = pickedFilesSelected.size;
+  btn.disabled = count === 0;
+  btn.textContent = count ? `إرسال المحدد (${count})` : "إرسال المحدد";
+}
+
+function renderPickedFilesPage(){
+  const wrap = document.getElementById("filesPageList");
+  if(!wrap) return;
+
+  if(!pickedFilesPage.length){
+    wrap.className = "file-empty";
+    wrap.innerHTML = "ماكو ملفات مختارة حالياً";
+    updatePickedFilesButton();
+    return;
+  }
+
+  wrap.className = "";
+  wrap.innerHTML = pickedFilesPage.map(file => {
+    const checked = pickedFilesSelected.has(file.id) ? "checked" : "";
+    const type = detectFilesPageType(file.name);
+    const icon = getFilesPageIcon(type);
+    const color = getFilesPageColor(type);
+    return `
+      <div class="file-row-card" onclick="togglePickedFile('${file.id}')">
+        <input class="file-row-check" type="checkbox" ${checked} onclick="event.stopPropagation()" onchange="togglePickedFile('${file.id}')">
+        <div class="file-row-icon" style="background:${color};">
+          <i class="bi ${icon}"></i>
+        </div>
+        <div class="file-row-info">
+          <div class="file-row-name">${String(file.name || "")}</div>
+          <div class="file-row-meta">${formatFilesPageSize(file.size || 0)} • ${type}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  updatePickedFilesButton();
+}
+
+function togglePickedFile(id){
+  if(pickedFilesSelected.has(id)) pickedFilesSelected.delete(id);
+  else pickedFilesSelected.add(id);
+  renderPickedFilesPage();
+}
+window.togglePickedFile = togglePickedFile;
+
+function selectAllPickedFiles(){
+  pickedFilesPage.forEach(file => pickedFilesSelected.add(file.id));
+  renderPickedFilesPage();
+}
+window.selectAllPickedFiles = selectAllPickedFiles;
+
+function clearPickedSelection(){
+  pickedFilesSelected.clear();
+  renderPickedFilesPage();
+}
+window.clearPickedSelection = clearPickedSelection;
+
+function clearPickedFiles(){
+  pickedFilesSelected.clear();
+  pickedFilesPage = [];
+  const input = document.getElementById("filesPageInput");
+  if(input) input.value = "";
+  renderPickedFilesPage();
+}
+window.clearPickedFiles = clearPickedFiles;
+
+async function sendPickedFiles(){
+  const selected = pickedFilesPage.filter(file => pickedFilesSelected.has(file.id)).map(x => x.nativeFile);
+  if(!selected.length){
+    alert("حدد ملف واحد على الأقل");
+    return;
+  }
+
+  try{
+    if(navigator.canShare && navigator.canShare({ files: selected })){
+      await navigator.share({
+        files: selected,
+        title: "مشاركة الملفات",
+        text: "الملفات المحددة"
+      });
+    }else{
+      alert("المشاركة المباشرة غير مدعومة هنا");
+    }
+  }catch(error){
+    if(error && error.name !== "AbortError"){
+      alert("صار خطأ بالمشاركة");
+    }
+  }
+}
+window.sendPickedFiles = sendPickedFiles;
+
+const filesPageInput = document.getElementById("filesPageInput");
+if(filesPageInput){
+  filesPageInput.addEventListener("change", function(e){
+    normalizePickedFiles(e.target.files);
+  });
+}
+
+const folderPageInput = document.getElementById("folderPageInput");
+if(folderPageInput){
+  folderPageInput.addEventListener("change", function(e){
+    normalizePickedFiles(e.target.files);
+  });
+}
+
+
 await loadFirebaseCustomers();
 </script>
-
 
 <video id="keepAwakeVideo" loop muted playsinline style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;top:-9999px;">
   <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAGZnJlZQAAAm1tZGF0AAACrgYF//+q
 3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NSBiZWU0MDAwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMiAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3g yNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTEgZGVibG9jaz0wOjA6MCBhbmFseXNlPTA6MCBtZT1kaWEgc3VibWU9MCBwc3k9MCBwc3lfcmQ9MC4wMDowLjAwIG1peGVkX3JlZj0wIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0wIHRyZWxsaXM9MC A4eDhkY3Q9MCBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0wIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTA gY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0xIGtleWludF9taW49MSBzY2VuZWN1dD0wIGludHJhX3JlZnJlc2g9MCByYz1jcnYgbWJ0cmVlPTAgY3JmPTUxLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MAAAABxpZHRzAAAAAAAAAABlAAAD6AAAABhpc28yYXZjMW1wNDEAAABsbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAABdwAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAjR0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+gAAAAAAABdwAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAQAAAAEAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAXcAAAEAAABAAAAAAGmbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAyAAAAEABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAAB/W1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAa1zdGJsAAAA0XN0c2QAAAAAAAAAAQAAAMFhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQABAEgAAABIAAAAAAAAAAEVTGF2YzU5LjM3LjEwMAAAAAAAABj//wAAADVhdmNDAWQACv/hABdnZAAKrNlCBEAAAAMAEAAAAwA8DxIllgEABmjr48siwP34+AAAAAAQcGFzcAAAAAEAAAAUYml0cgAAAAAAAC4tAAAAABhzdHRzAAAAAAAAAAEAAAABAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAFHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAABRzdHN6AAAAAAAAAHUAAAABAAAAFHN0Y28AAAAAAAAAAQAAADYAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTkuMjcuMTAw" type="video/mp4">
 </video>
 
-
 </body>
 </html>
-```
-
-✅ التعديلات التي أجريتها:
-
-1. أزلت صفحة "الملفات" بالكامل (التي كانت تحتوي على أزرار اختيار الملفات والمجلدات).
-2. استبدلت الزر العلوي (الذي كان يفتح صفحة الملفات) بزر جديد عنوانه "📁 مدير الملفات".
-3. الزر الجديد عند الضغط عليه يشغل الرابط:
-   ```
-   shortcuts://run-shortcut?name=%D9%85%D8%AF%D9%8A%D8%B1%20%D8%A7%D9%84%D9%85%D9%84%D9%81%D8%A7%D8%AA
-   ```
-   وهذا الرابط هو نفسه الذي جربته وأكدت أنه يعمل.
-
-طريقة الاستخدام:
-
-1. انسخ الكود بالكامل
-2. الصقه في ملف جديد باسم index.html أو أي اسم تريده
-3. افتح الملف في Safari (من خلال تطبيق "الملفات" ثم مشاركة إلى Safari)
-4. اضغط على البطاقة الزرقاء التي كتب عليها "مدير الملفات"
-
-الآن سيفتح الاختصار مباشرة! 🚀

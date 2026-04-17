@@ -1,31 +1,26 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+  
   <title>طلب كشف حساب</title>
-
+  
   <!-- الأيقونة -->
-
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
-
+  
   <!-- وضع التطبيق -->
-
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="كشف حساب">
-
+  
   <!-- لون المتصفح -->
-
   <meta name="theme-color" content="#0d6efd">
-
+  
   <!-- مكتبات -->
-
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
+  
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
@@ -1193,7 +1188,6 @@ body{
 }
 
 </style>
-
 </head>
 
 <body>
@@ -1232,17 +1226,15 @@ body{
       <h1>طلب كشف حساب</h1>
     </div>
 
-```
-<div class="logo">
-  <i class="bi bi-receipt"></i>
-</div>
-```
-
+    <div class="logo">
+      <i class="bi bi-receipt"></i>
+    </div>
   </div>
 
-  <div class="card" style="padding:14px;margin-bottom:15px;cursor:pointer;" onclick="window.location.href='shortcuts://run-shortcut?name=m'">
-    <div style="display:flex;align-items:center;gap:12px;direction:ltr;">
-      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0d6efd,#4f8cff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">
+  
+
+  
+  <div class="card" style="padding:14px;margin-bottom:15px;cursor:pointer;" onclick="window.location.href='shortcuts://run-shortcut?name=pdf'"style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0d6efd,#4f8cff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">
         <i class="bi bi-folder2-open"></i>
       </div>
       <div>
@@ -1253,11 +1245,9 @@ body{
   </div>
 
   <div class="input-group">
+     
 
-```
-  <label>اختر السنة</label>
-```
-
+      <label>اختر السنة</label>
 <div class="year-row">
         <select id="yearSelect">
           <option value="2020">2020</option>
@@ -1269,18 +1259,15 @@ body{
           <option value="2026" selected>2026</option>
         </select>
 
-```
-    <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
-      <i class="bi bi-check2-circle"></i>
-    </button>
-  </div>
-</div>
+        <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
+          <i class="bi bi-check2-circle"></i>
+        </button>
+      </div>
+    </div>
 
-<div class="input-group">
-  
-  <label>اختر البراند</label>
-```
-
+    <div class="input-group">
+      
+      <label>اختر البراند</label>
 <div class="quick-brands">
         <button type="button" class="brand-btn" onclick="setBrand('FOREVER',this)">FOREVER</button>
         <button type="button" class="brand-btn" onclick="setBrand('CHARACTER',this)">CHARACTER</button>
@@ -1317,22 +1304,19 @@ body{
         حالة الطلب
       </div>
 
-```
-  <div id="statusText">جاري إرسال الطلب...</div>
+      <div id="statusText">جاري إرسال الطلب...</div>
 
-  <div id="statusLog" style="
-    font-size:14px;
-    line-height:1.8;
-    margin-bottom:10px;
-    color:#444;
-  "></div>
+      <div id="statusLog" style="
+        font-size:14px;
+        line-height:1.8;
+        margin-bottom:10px;
+        color:#444;
+      "></div>
 
-  <div class="status-track">
-    <div id="statusBar"></div>
-  </div>
-</div>
-```
-
+      <div class="status-track">
+        <div id="statusBar"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1358,14 +1342,11 @@ body{
   <div class="search-actions">
     <button type="button" class="mini-btn primary" id="startSelectBtn" onclick="startSelectionMode()">تحديد</button>
 
-```
-<div id="selectionTools" style="display:none;">
-  <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
-  <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
-  <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
-</div>
-```
-
+    <div id="selectionTools" style="display:none;">
+      <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
+      <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
+      <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
+    </div>
   </div>
 
   <div id="selectedCountBox" class="selected-count-box" style="display:none;">
@@ -1379,6 +1360,7 @@ body{
   </div>
 </div>
 
+
 </div>
 
 <div id="pageFiles" class="app-page" style="overflow-y:auto;height:100vh;">
@@ -1388,41 +1370,38 @@ body{
       <div class="files-title">الملفات</div>
     </div>
 
-```
-<div class="card" style="margin-bottom:14px;">
-  <div class="section-title"><i class="bi bi-folder2-open"></i> إدارة الملفات</div>
-  <div style="font-size:13px;color:#6e7b96;line-height:1.8;margin-bottom:12px;">
-    اختر ملفات من الجهاز أو Google Drive أو iCloud، وبعدها تگدر تحددها وترسل المحدد.
-  </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="section-title"><i class="bi bi-folder2-open"></i> إدارة الملفات</div>
+      <div style="font-size:13px;color:#6e7b96;line-height:1.8;margin-bottom:12px;">
+        اختر ملفات من الجهاز أو Google Drive أو iCloud، وبعدها تگدر تحددها وترسل المحدد.
+      </div>
 
-  <div class="files-tools">
-    <button class="btn btn-primary" type="button" onclick="openFilesPickerPage()">اختيار ملفات</button>
-    <button class="btn btn-secondary" type="button" onclick="openFolderPickerPage()">اختيار مجلد</button>
-  </div>
+      <div class="files-tools">
+        <button class="btn btn-primary" type="button" onclick="openFilesPickerPage()">اختيار ملفات</button>
+        <button class="btn btn-secondary" type="button" onclick="openFolderPickerPage()">اختيار مجلد</button>
+      </div>
 
-  <div class="files-tools">
-    <button class="btn btn-secondary" type="button" onclick="selectAllPickedFiles()">تحديد الكل</button>
-    <button class="btn btn-secondary" type="button" onclick="clearPickedSelection()">إلغاء التحديد</button>
-  </div>
+      <div class="files-tools">
+        <button class="btn btn-secondary" type="button" onclick="selectAllPickedFiles()">تحديد الكل</button>
+        <button class="btn btn-secondary" type="button" onclick="clearPickedSelection()">إلغاء التحديد</button>
+      </div>
 
-  <div class="files-tools">
-    <button class="btn btn-secondary" type="button" onclick="clearPickedFiles()">مسح القائمة</button>
-  </div>
+      <div class="files-tools">
+        <button class="btn btn-secondary" type="button" onclick="clearPickedFiles()">مسح القائمة</button>
+      </div>
 
-  <div style="font-size:12px;color:#6e7b96;line-height:1.8;margin-top:4px;">
-    محاولة ربط أقرب للمجلد: زر <b>اختيار مجلد</b> قد يجلب كل ملفات المجلد دفعة واحدة إذا دعمه iPhone/المتصفح.
-  </div>
+      <div style="font-size:12px;color:#6e7b96;line-height:1.8;margin-top:4px;">
+        محاولة ربط أقرب للمجلد: زر <b>اختيار مجلد</b> قد يجلب كل ملفات المجلد دفعة واحدة إذا دعمه iPhone/المتصفح.
+      </div>
 
-  <input type="file" id="filesPageInput" class="hidden-native-input" multiple>
-  <input type="file" id="folderPageInput" class="hidden-native-input" webkitdirectory multiple>
-  <div id="filesPageList" class="file-empty">ماكو ملفات مختارة حالياً</div>
-</div>
+      <input type="file" id="filesPageInput" class="hidden-native-input" multiple>
+      <input type="file" id="folderPageInput" class="hidden-native-input" webkitdirectory multiple>
+      <div id="filesPageList" class="file-empty">ماكو ملفات مختارة حالياً</div>
+    </div>
 
-<div class="bottom-wrap" style="margin-top:10px;">
-  <button class="btn btn-primary" type="button" id="sendPickedFilesBtn" onclick="sendPickedFiles()" disabled>إرسال المحدد</button>
-</div>
-```
-
+    <div class="bottom-wrap" style="margin-top:10px;">
+      <button class="btn btn-primary" type="button" id="sendPickedFilesBtn" onclick="sendPickedFiles()" disabled>إرسال المحدد</button>
+    </div>
   </div>
 </div>
 
@@ -2998,10 +2977,12 @@ if(folderPageInput){
 await loadFirebaseCustomers();
 </script>
 
+
 <video id="keepAwakeVideo" loop muted playsinline style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;top:-9999px;">
   <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAGZnJlZQAAAm1tZGF0AAACrgYF//+q
 3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NSBiZWU0MDAwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMiAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3g yNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTEgZGVibG9jaz0wOjA6MCBhbmFseXNlPTA6MCBtZT1kaWEgc3VibWU9MCBwc3k9MCBwc3lfcmQ9MC4wMDowLjAwIG1peGVkX3JlZj0wIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0wIHRyZWxsaXM9MC A4eDhkY3Q9MCBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0wIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTA gY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0xIGtleWludF9taW49MSBzY2VuZWN1dD0wIGludHJhX3JlZnJlc2g9MCByYz1jcnYgbWJ0cmVlPTAgY3JmPTUxLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MAAAABxpZHRzAAAAAAAAAABlAAAD6AAAABhpc28yYXZjMW1wNDEAAABsbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAABdwAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAjR0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+gAAAAAAABdwAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAQAAAAEAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAXcAAAEAAABAAAAAAGmbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAyAAAAEABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAAB/W1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAa1zdGJsAAAA0XN0c2QAAAAAAAAAAQAAAMFhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQABAEgAAABIAAAAAAAAAAEVTGF2YzU5LjM3LjEwMAAAAAAAABj//wAAADVhdmNDAWQACv/hABdnZAAKrNlCBEAAAAMAEAAAAwA8DxIllgEABmjr48siwP34+AAAAAAQcGFzcAAAAAEAAAAUYml0cgAAAAAAAC4tAAAAABhzdHRzAAAAAAAAAAEAAAABAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAFHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAABRzdHN6AAAAAAAAAHUAAAABAAAAFHN0Y28AAAAAAAAAAQAAADYAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTkuMjcuMTAw" type="video/mp4">
 </video>
+
 
 </body>
 </html>

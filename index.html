@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فتح التطبيق مباشرة</title>
+    <title>فتح رابط الاختصار</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
             margin: 0;
+            padding: 20px;
         }
         .card {
             background: white;
             border-radius: 30px;
-            padding: 40px 30px;
+            padding: 40px;
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             max-width: 350px;
-            width: 100%;
         }
         button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -33,33 +32,51 @@
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s;
             width: 100%;
-            margin-bottom: 15px;
         }
         button:active {
             transform: scale(0.97);
         }
-        .note {
+        .link {
             margin-top: 20px;
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
+            word-break: break-all;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #764ba2;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>📱 فتح التطبيق</h1>
-        <p>اضغط الزر لفتح التطبيق <strong>مباشرة</strong></p>
+        <h1>⚡ فتح الاختصار</h1>
+        <p>اضغط الزر لفتح رابط iCloud</p>
         
-        <!-- غير الرابط أدناه إلى رابط التطبيق الذي تريده -->
-        <button onclick="window.location.href='shortcuts://open-app?app-id=com.apple.Preferences'">
-            🚀 فتح التطبيق
+        <button onclick="openShortcut()">
+            🚀 افتح الاختصار
         </button>
         
-        <div class="note">
-            هذا الرابط يفتح التطبيق مباشرة دون المرور على تطبيق الاختصارات
+        <div class="status" id="status"></div>
+        <div class="link">
+            الرابط: https://www.icloud.com/shortcuts/a8426d05ced04db292d849a1bf0ffe69
         </div>
     </div>
+
+    <script>
+        function openShortcut() {
+            let statusDiv = document.getElementById("status");
+            statusDiv.innerHTML = "⏳ جاري الفتح...";
+            
+            // الرابط اللي أعطيتني إياه (حتى لو ما يشتغل)
+            window.location.href = "https://www.icloud.com/shortcuts/a8426d05ced04db292d849a1bf0ffe69";
+            
+            setTimeout(function() {
+                statusDiv.innerHTML = "✅ تم محاولة فتح الرابط";
+            }, 1000);
+        }
+    </script>
 </body>
 </html>

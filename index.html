@@ -55,6 +55,7 @@
     .secondary{ background:#eaf2ff; color:#0d57d7; }
     .danger{ background:#fff1f3; color:#bf264d; }
     .ghost{ background:#f6f8fc; color:#334862; border:1px solid #d9e3f1; }
+    .whatsapp{ background:#25D366; color:#fff; }
     .status{
       margin-top:12px;
       padding:12px 14px;
@@ -67,7 +68,7 @@
     }
     .toolbar{
       display:grid;
-      grid-template-columns:1.3fr .8fr auto auto;
+      grid-template-columns:1.3fr .8fr auto auto auto;
       gap:10px;
       margin-top:12px;
     }
@@ -267,6 +268,7 @@
         </select>
         <button id="selectAllBtn" class="ghost">تحديد الكل</button>
         <button id="clearSelectBtn" class="ghost">إلغاء التحديد</button>
+        <button id="sendWhatsBtn" class="whatsapp">إرسال واتساب</button>
       </div>
 
       <div class="stats">
@@ -313,6 +315,7 @@
     const loginBtn = document.getElementById("loginBtn");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+    const sendWhatsBtn = document.getElementById("sendWhatsBtn");
     const statusEl = document.getElementById("status");
     const fileListEl = document.getElementById("fileList");
     const searchInput = document.getElementById("searchInput");
@@ -468,6 +471,35 @@
       renderFiles();
     }
 
+    async function sendSelectedWhatsApp() {
+      const selectedFiles = allFiles.filter(file => selectedIds.has(file.id));
+
+      if (!selectedFiles.length) {
+        alert("حدد ملف واحد على الأقل");
+        return;
+      }
+
+      const text = selectedFiles.map(file => {
+        const link = file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`;
+        return `📄 ${file.name}
+${link}`;
+      }).join("\n\n");
+
+      try {
+        if (navigator.share) {
+          await navigator.share({
+            title: "ملفات Google Drive",
+            text
+          });
+          return;
+        }
+      } catch (err) {
+        return;
+      }
+
+      window.location.href = "https://wa.me/?text=" + encodeURIComponent(text);
+    }
+
     async function listFiles() {
       try {
         if (FOLDER_ID === "PUT_FOLDER_ID_HERE" || !FOLDER_ID.trim()) {
@@ -488,6 +520,7 @@
         setStatus(`تم جلب ${allFiles.length} ملف من الفولدر المحدد.`);
         refreshBtn.disabled = false;
         logoutBtn.disabled = false;
+        sendWhatsBtn.disabled = false;
       } catch (err) {
         console.error(err);
         setStatus("صار خطأ أثناء جلب الملفات.");
@@ -520,6 +553,7 @@
       fileListEl.innerHTML = '<div class="empty">تم تسجيل الخروج.</div>';
       refreshBtn.disabled = true;
       logoutBtn.disabled = true;
+      sendWhatsBtn.disabled = true;
       setStatus("تم تسجيل الخروج.");
     }
 
@@ -579,6 +613,7 @@
     loginBtn.addEventListener("click", handleAuthClick);
     refreshBtn.addEventListener("click", listFiles);
     logoutBtn.addEventListener("click", handleLogout);
+    sendWhatsBtn.addEventListener("click", sendSelectedWhatsApp);
     searchInput.addEventListener("input", renderFiles);
     typeFilter.addEventListener("change", renderFiles);
     selectAllBtn.addEventListener("click", selectAllVisible);
@@ -588,6 +623,7 @@
       if (e.target === pdfModal) closePdf();
     });
 
+    sendWhatsBtn.disabled = true;
     updateSelectedBox();
     loadGoogleScripts();
   </script>

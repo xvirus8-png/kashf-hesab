@@ -3,94 +3,532 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Google Drive Demo</title>
+  <title>Google Drive Folder Viewer</title>
   <style>
+    * { box-sizing: border-box; }
     body{
-      font-family: Arial, sans-serif;
-      padding:20px;
-      direction: rtl;
-      background:#f5f7fb;
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      background:#f4f6fb;
+      color:#18243a;
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:18px 14px 40px;
+    }
+    .card{
+      background:#fff;
+      border:1px solid #e4ebf5;
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 10px 28px rgba(19,38,71,.06);
+      margin-bottom:14px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:28px;
+    }
+    .sub{
+      color:#62748f;
+      line-height:1.7;
+      font-size:14px;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:14px;
     }
     button{
-      padding:12px 18px;
-      border:none;
-      border-radius:10px;
-      background:#0d6efd;
-      color:white;
-      font-size:16px;
+      border:0;
+      border-radius:12px;
+      padding:12px 16px;
       cursor:pointer;
+      font-size:15px;
+      transition:.15s ease;
     }
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
+    button:hover{ transform:translateY(-1px); }
+    button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+    .primary{ background:#0d6efd; color:#fff; }
+    .secondary{ background:#eaf2ff; color:#0d57d7; }
+    .danger{ background:#fff1f3; color:#bf264d; }
+    .ghost{ background:#f6f8fc; color:#334862; border:1px solid #d9e3f1; }
+    .status{
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #e4ebf5;
+      background:#f8fbff;
+      font-size:14px;
+      color:#334862;
+      line-height:1.7;
     }
-    #status{
-      margin-top:15px;
-      padding:12px;
+    .toolbar{
+      display:grid;
+      grid-template-columns:1.3fr .8fr auto auto;
+      gap:10px;
+      margin-top:12px;
+    }
+    .toolbar input,
+    .toolbar select{
+      width:100%;
+      border:1px solid #d6e0ef;
+      border-radius:12px;
       background:#fff;
-      border-radius:10px;
-      border:1px solid #ddd;
+      padding:12px 13px;
+      font-size:14px;
+      outline:none;
     }
-    #files{
-      margin-top:20px;
+    .stats{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .pill{
+      border-radius:999px;
+      background:#f1f6ff;
+      color:#27539a;
+      border:1px solid #d7e6ff;
+      padding:8px 12px;
+      font-size:13px;
+    }
+    .list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+    .item{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:12px;
+      align-items:start;
+      border:1px solid #e5edf7;
+      border-radius:16px;
+      padding:14px;
       background:#fff;
-      border-radius:10px;
-      border:1px solid #ddd;
-      padding:15px;
     }
-    .file-item{
-      padding:8px 0;
-      border-bottom:1px solid #eee;
+    .check{
+      transform:scale(1.2);
+      margin-top:5px;
     }
-    .file-item:last-child{
-      border-bottom:none;
+    .title{
+      font-weight:700;
+      font-size:16px;
+      line-height:1.7;
+      word-break:break-word;
+      margin-bottom:6px;
+    }
+    .meta{
+      color:#6b7d96;
+      font-size:13px;
+      line-height:1.8;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      justify-content:flex-end;
+    }
+    .linkbtn{
+      text-decoration:none;
+      background:#f6f9ff;
+      color:#0f5edb;
+      border:1px solid #dbe7fb;
+      border-radius:11px;
+      padding:9px 12px;
+      font-size:14px;
+      display:inline-block;
+    }
+    .tag{
+      display:inline-block;
+      margin-top:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f4f7fb;
+      color:#586b84;
+      font-size:12px;
+      border:1px solid #e0e8f4;
+    }
+    .empty{
+      text-align:center;
+      padding:28px 14px;
+      color:#687b95;
+      border-radius:16px;
+      border:1px dashed #d6dfed;
+      background:#fbfcff;
+    }
+    .hint{
+      margin-top:10px;
+      color:#7a8798;
+      font-size:13px;
+      line-height:1.8;
+    }
+    .selectedBox{
+      margin-top:12px;
+      border-top:1px solid #ebf0f7;
+      padding-top:12px;
+      color:#4d617d;
+      font-size:14px;
+      line-height:1.8;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.58);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:14px;
+    }
+    .modal.show{ display:flex; }
+    .modal-card{
+      width:min(1100px,100%);
+      height:min(88vh,100%);
+      background:#fff;
+      border-radius:18px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      box-shadow:0 18px 50px rgba(0,0,0,.20);
+    }
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:14px 16px;
+      border-bottom:1px solid #e7edf6;
+      background:#fafcff;
+    }
+    .modal-title{
+      font-weight:700;
+      line-height:1.6;
+      word-break:break-word;
+    }
+    .closeBtn{
+      background:#f2f5fa;
+      color:#2e3f58;
+      border:1px solid #dce5f0;
+      padding:10px 14px;
+      border-radius:12px;
+    }
+    iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      background:#fff;
+    }
+    @media (max-width: 760px){
+      .toolbar{ grid-template-columns:1fr; }
+      .item{ grid-template-columns:auto 1fr; }
+      .actions{ grid-column:1 / -1; justify-content:flex-start; }
+      h1{ font-size:24px; }
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="card">
+      <h1>عرض ملفات Google Drive</h1>
+      <div class="sub">
+        هذه النسخة تعرض ملفات <b>فولدر واحد فقط</b> من Google Drive، وتحتوي على:
+        بحث، فلتر، تحديد ملفات، وعرض PDF داخل التطبيق.
+      </div>
 
-  <h2>عرض ملفات Google Drive</h2>
+      <div class="row">
+        <button id="loginBtn" class="primary" disabled>جاري تحميل Google...</button>
+        <button id="refreshBtn" class="secondary" disabled>تحديث الملفات</button>
+        <button id="logoutBtn" class="danger" disabled>تسجيل الخروج</button>
+      </div>
 
-  <button id="btnLogin" onclick="handleAuthClick()" disabled>جاري تحميل Google...</button>
+      <div id="status" class="status">الحالة: جاري تحميل مكتبات Google...</div>
 
-  <div id="status">الحالة: بدء التحميل...</div>
+      <div class="hint">
+        مهم: بدّل قيمة <b>FOLDER_ID</b> داخل الكود إلى معرّف الفولدر الذي تريد عرضه فقط.
+      </div>
 
-  <div id="files">لا توجد ملفات بعد.</div>
+      <div class="selectedBox" id="selectedBox">
+        الملفات المحددة: 0
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input id="searchInput" type="text" placeholder="بحث باسم الملف..." />
+        <select id="typeFilter">
+          <option value="all">كل الملفات</option>
+          <option value="pdf">PDF فقط</option>
+          <option value="excel">Excel فقط</option>
+          <option value="folder">مجلدات فقط</option>
+        </select>
+        <button id="selectAllBtn" class="ghost">تحديد الكل</button>
+        <button id="clearSelectBtn" class="ghost">إلغاء التحديد</button>
+      </div>
+
+      <div class="stats">
+        <div class="pill">عدد النتائج: <span id="countLabel">0</span></div>
+      </div>
+
+      <div id="fileList" class="list">
+        <div class="empty">لا توجد ملفات بعد.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdfModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div id="pdfTitle" class="modal-title">عرض PDF</div>
+        <button id="closePdfBtn" class="closeBtn">إغلاق</button>
+      </div>
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+  </div>
 
   <script>
     const CLIENT_ID = "503826285883-45mi9qcd6vldrkbanu6me6fpqg5dghqs.apps.googleusercontent.com";
     const API_KEY = "AIzaSyDwMM73FaT5snh18bs1WEE1A5pnXlGaD1M";
+    const FOLDER_ID = "PUT_FOLDER_ID_HERE";
     const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
     const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
+
+    const MIME = {
+      folder: "application/vnd.google-apps.folder",
+      pdf: "application/pdf",
+      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      xls: "application/vnd.ms-excel",
+      sheet: "application/vnd.google-apps.spreadsheet"
+    };
 
     let tokenClient = null;
     let gapiReady = false;
     let gisReady = false;
+    let allFiles = [];
+    let selectedIds = new Set();
 
-    const btnLogin = document.getElementById("btnLogin");
-    const statusBox = document.getElementById("status");
-    const filesBox = document.getElementById("files");
+    const loginBtn = document.getElementById("loginBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const statusEl = document.getElementById("status");
+    const fileListEl = document.getElementById("fileList");
+    const searchInput = document.getElementById("searchInput");
+    const typeFilter = document.getElementById("typeFilter");
+    const countLabel = document.getElementById("countLabel");
+    const selectedBox = document.getElementById("selectedBox");
+    const selectAllBtn = document.getElementById("selectAllBtn");
+    const clearSelectBtn = document.getElementById("clearSelectBtn");
+    const pdfModal = document.getElementById("pdfModal");
+    const pdfFrame = document.getElementById("pdfFrame");
+    const pdfTitle = document.getElementById("pdfTitle");
+    const closePdfBtn = document.getElementById("closePdfBtn");
 
     function setStatus(text) {
-      statusBox.innerText = "الحالة: " + text;
+      statusEl.textContent = "الحالة: " + text;
       console.log(text);
     }
 
-    function checkReady() {
+    function updateSelectedBox() {
+      selectedBox.textContent = "الملفات المحددة: " + selectedIds.size;
+    }
+
+    function escapeHtml(text) {
+      return (text || "").replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[m];
+      });
+    }
+
+    function maybeEnableUI() {
       if (gapiReady && gisReady) {
-        btnLogin.disabled = false;
-        btnLogin.innerText = "عرض الملفات";
+        loginBtn.disabled = false;
+        loginBtn.textContent = "عرض الملفات";
         setStatus("جاهز. اضغط عرض الملفات.");
       }
+    }
+
+    function typeLabel(file) {
+      const mt = file.mimeType;
+      const name = (file.name || "").toLowerCase();
+      if (mt === MIME.folder) return "مجلد";
+      if (mt === MIME.pdf || name.endsWith(".pdf")) return "PDF";
+      if ([MIME.xlsx, MIME.xls, MIME.sheet].includes(mt) || name.endsWith(".xlsx") || name.endsWith(".xls")) return "Excel";
+      return "ملف";
+    }
+
+    function matchesFilter(file, filterValue) {
+      const mt = file.mimeType;
+      const name = (file.name || "").toLowerCase();
+      if (filterValue === "all") return true;
+      if (filterValue === "folder") return mt === MIME.folder;
+      if (filterValue === "pdf") return mt === MIME.pdf || name.endsWith(".pdf");
+      if (filterValue === "excel") {
+        return [MIME.xlsx, MIME.xls, MIME.sheet].includes(mt) || name.endsWith(".xlsx") || name.endsWith(".xls");
+      }
+      return true;
+    }
+
+    function isPdf(file) {
+      const mt = file.mimeType;
+      const name = (file.name || "").toLowerCase();
+      return mt === MIME.pdf || name.endsWith(".pdf");
+    }
+
+    function getFilteredFiles() {
+      const q = searchInput.value.trim().toLowerCase();
+      const filterValue = typeFilter.value;
+      return allFiles.filter(file => {
+        const bySearch = !q || (file.name || "").toLowerCase().includes(q);
+        const byType = matchesFilter(file, filterValue);
+        return bySearch && byType;
+      });
+    }
+
+    function openPdf(file) {
+      pdfTitle.textContent = file.name || "عرض PDF";
+      pdfFrame.src = `https://drive.google.com/file/d/${file.id}/preview`;
+      pdfModal.classList.add("show");
+    }
+
+    function closePdf() {
+      pdfFrame.src = "";
+      pdfModal.classList.remove("show");
+    }
+
+    function renderFiles() {
+      const files = getFilteredFiles();
+      countLabel.textContent = files.length;
+
+      if (!files.length) {
+        fileListEl.innerHTML = '<div class="empty">ماكو نتائج مطابقة.</div>';
+        return;
+      }
+
+      fileListEl.innerHTML = files.map(file => {
+        const fileName = escapeHtml(file.name || "بدون اسم");
+        const modified = file.modifiedTime ? new Date(file.modifiedTime).toLocaleString("ar-IQ") : "غير معروف";
+        const size = file.size ? `${Math.round(Number(file.size) / 1024)} KB` : "—";
+        const checked = selectedIds.has(file.id) ? "checked" : "";
+        const type = typeLabel(file);
+        const webLink = file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`;
+        const downloadLink = file.webContentLink || `https://drive.google.com/uc?export=download&id=${file.id}`;
+        let previewBtn = "";
+        if (isPdf(file)) {
+          previewBtn = `<button class="ghost" onclick="openPdfById('${file.id}')">عرض PDF</button>`;
+        }
+        return `
+          <div class="item">
+            <input class="check" type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" />
+            <div>
+              <div class="title">${fileName}</div>
+              <div class="meta">
+                آخر تعديل: ${modified}<br>
+                الحجم: ${size}
+              </div>
+              <div class="tag">${type}</div>
+            </div>
+            <div class="actions">
+              ${previewBtn}
+              <a class="linkbtn" href="${webLink}" target="_blank" rel="noopener noreferrer">فتح</a>
+              <a class="linkbtn" href="${downloadLink}" target="_blank" rel="noopener noreferrer">تحميل</a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.toggleSelect = function(fileId, checked) {
+      if (checked) selectedIds.add(fileId);
+      else selectedIds.delete(fileId);
+      updateSelectedBox();
+    }
+
+    window.openPdfById = function(fileId) {
+      const file = allFiles.find(f => f.id === fileId);
+      if (file) openPdf(file);
+    }
+
+    function selectAllVisible() {
+      getFilteredFiles().forEach(file => selectedIds.add(file.id));
+      updateSelectedBox();
+      renderFiles();
+    }
+
+    function clearSelection() {
+      selectedIds.clear();
+      updateSelectedBox();
+      renderFiles();
+    }
+
+    async function listFiles() {
+      try {
+        if (FOLDER_ID === "PUT_FOLDER_ID_HERE" || !FOLDER_ID.trim()) {
+          setStatus("لازم تضيف FOLDER_ID داخل الكود أولاً.");
+          return;
+        }
+        setStatus("جاري جلب ملفات الفولدر...");
+        const query = `'${FOLDER_ID}' in parents and trashed = false`;
+        const response = await gapi.client.drive.files.list({
+          q: query,
+          pageSize: 50,
+          fields: "files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink)",
+          orderBy: "modifiedTime desc"
+        });
+
+        allFiles = response.result.files || [];
+        renderFiles();
+        setStatus(`تم جلب ${allFiles.length} ملف من الفولدر المحدد.`);
+        refreshBtn.disabled = false;
+        logoutBtn.disabled = false;
+      } catch (err) {
+        console.error(err);
+        setStatus("صار خطأ أثناء جلب الملفات.");
+      }
+    }
+
+    function handleAuthClick() {
+      if (!gapiReady || !gisReady || !tokenClient) {
+        setStatus("Google بعده ما صار جاهز.");
+        return;
+      }
+      const token = gapi.client.getToken();
+      if (token === null) {
+        setStatus("جاري فتح تسجيل الدخول...");
+        tokenClient.requestAccessToken({ prompt: "consent" });
+      } else {
+        listFiles();
+      }
+    }
+
+    function handleLogout() {
+      const token = gapi.client.getToken();
+      if (token) {
+        google.accounts.oauth2.revoke(token.access_token);
+        gapi.client.setToken("");
+      }
+      allFiles = [];
+      selectedIds.clear();
+      updateSelectedBox();
+      fileListEl.innerHTML = '<div class="empty">تم تسجيل الخروج.</div>';
+      refreshBtn.disabled = true;
+      logoutBtn.disabled = true;
+      setStatus("تم تسجيل الخروج.");
     }
 
     function loadGoogleScripts() {
       setStatus("جاري تحميل مكتبات Google...");
 
-      const script1 = document.createElement("script");
-      script1.src = "https://apis.google.com/js/api.js";
-      script1.onload = () => {
-        setStatus("تم تحميل gapi.js ... جاري التهيئة");
+      const s1 = document.createElement("script");
+      s1.src = "https://apis.google.com/js/api.js";
+      s1.onload = () => {
         gapi.load("client", async () => {
           try {
             await gapi.client.init({
@@ -98,102 +536,59 @@
               discoveryDocs: [DISCOVERY_DOC]
             });
             gapiReady = true;
-            setStatus("تمت تهيئة Google API");
-            checkReady();
+            setStatus("تمت تهيئة Google API.");
+            maybeEnableUI();
           } catch (err) {
-            console.error("gapi init error:", err);
-            setStatus("فشل تهيئة Google API");
+            console.error("gapi init error", err);
+            setStatus("فشل تهيئة Google API.");
           }
         });
       };
-      script1.onerror = () => {
-        setStatus("فشل تحميل ملف gapi.js");
-      };
-      document.body.appendChild(script1);
+      s1.onerror = () => setStatus("فشل تحميل gapi.js");
+      document.body.appendChild(s1);
 
-      const script2 = document.createElement("script");
-      script2.src = "https://accounts.google.com/gsi/client";
-      script2.onload = () => {
+      const s2 = document.createElement("script");
+      s2.src = "https://accounts.google.com/gsi/client";
+      s2.onload = () => {
         try {
           tokenClient = google.accounts.oauth2.initTokenClient({
             client_id: CLIENT_ID,
             scope: SCOPES,
             callback: async (resp) => {
               if (resp.error) {
-                console.error("OAuth error:", resp);
-                setStatus("صار خطأ بعد تسجيل الدخول");
+                console.error("oauth error", resp);
+                setStatus("صار خطأ بعد تسجيل الدخول.");
                 return;
               }
-              setStatus("تم تسجيل الدخول. جاري جلب الملفات...");
+              setStatus("تم تسجيل الدخول بنجاح.");
               await listFiles();
             }
           });
-
           gisReady = true;
-          setStatus("تمت تهيئة Google Sign-In");
-          checkReady();
+          setStatus("تمت تهيئة تسجيل الدخول.");
+          maybeEnableUI();
         } catch (err) {
-          console.error("gis init error:", err);
-          setStatus("فشل تهيئة Google Sign-In");
+          console.error("gis init error", err);
+          setStatus("فشل تهيئة Google Sign-In.");
         }
       };
-      script2.onerror = () => {
-        setStatus("فشل تحميل ملف Google Sign-In");
-      };
-      document.body.appendChild(script2);
+      s2.onerror = () => setStatus("فشل تحميل Google Sign-In");
+      document.body.appendChild(s2);
     }
 
-    async function handleAuthClick() {
-      if (!gapiReady || !gisReady || !tokenClient) {
-        setStatus("Google بعده ما صار جاهز");
-        return;
-      }
+    loginBtn.addEventListener("click", handleAuthClick);
+    refreshBtn.addEventListener("click", listFiles);
+    logoutBtn.addEventListener("click", handleLogout);
+    searchInput.addEventListener("input", renderFiles);
+    typeFilter.addEventListener("change", renderFiles);
+    selectAllBtn.addEventListener("click", selectAllVisible);
+    clearSelectBtn.addEventListener("click", clearSelection);
+    closePdfBtn.addEventListener("click", closePdf);
+    pdfModal.addEventListener("click", (e) => {
+      if (e.target === pdfModal) closePdf();
+    });
 
-      try {
-        const currentToken = gapi.client.getToken();
-
-        if (currentToken === null) {
-          setStatus("جاري فتح تسجيل الدخول...");
-          tokenClient.requestAccessToken({ prompt: "consent" });
-        } else {
-          setStatus("عندك جلسة جاهزة. جاري جلب الملفات...");
-          await listFiles();
-        }
-      } catch (err) {
-        console.error("handleAuthClick error:", err);
-        setStatus("صار خطأ عند الضغط على الزر");
-      }
-    }
-
-    async function listFiles() {
-      try {
-        const response = await gapi.client.drive.files.list({
-          pageSize: 20,
-          fields: "files(id, name, mimeType)"
-        });
-
-        const files = response.result.files || [];
-
-        if (!files.length) {
-          filesBox.innerHTML = "لا توجد ملفات";
-          setStatus("تم جلب الملفات لكن القائمة فارغة");
-          return;
-        }
-
-        let html = "";
-        files.forEach(file => {
-          html += `<div class="file-item">${file.name}</div>`;
-        });
-
-        filesBox.innerHTML = html;
-        setStatus("تم جلب الملفات بنجاح");
-      } catch (err) {
-        console.error("listFiles error:", err);
-        filesBox.innerHTML = "فشل جلب الملفات";
-        setStatus("تسجيل الدخول تم، لكن جلب الملفات فشل");
-      }
-    }
-
+    updateSelectedBox();
     loadGoogleScripts();
   </script>
 </body>

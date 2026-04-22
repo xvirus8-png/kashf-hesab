@@ -1,100 +1,200 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Google Drive Demo</title>
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      padding:20px;
+      direction: rtl;
+      background:#f5f7fb;
+    }
+    button{
+      padding:12px 18px;
+      border:none;
+      border-radius:10px;
+      background:#0d6efd;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+    }
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+    #status{
+      margin-top:15px;
+      padding:12px;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid #ddd;
+    }
+    #files{
+      margin-top:20px;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid #ddd;
+      padding:15px;
+    }
+    .file-item{
+      padding:8px 0;
+      border-bottom:1px solid #eee;
+    }
+    .file-item:last-child{
+      border-bottom:none;
+    }
+  </style>
 </head>
+<body>
 
-<body style="font-family: Arial; padding:20px">
+  <h2>عرض ملفات Google Drive</h2>
 
-<h2>عرض ملفات Google Drive</h2>
+  <button id="btnLogin" onclick="handleAuthClick()" disabled>جاري تحميل Google...</button>
 
-<button onclick="handleAuthClick()">عرض الملفات</button>
+  <div id="status">الحالة: بدء التحميل...</div>
 
-<div id="files" style="margin-top:20px"></div>
+  <div id="files">لا توجد ملفات بعد.</div>
 
-<!-- مكتبات جوجل -->
-<script src="https://apis.google.com/js/api.js"></script>
-<script src="https://accounts.google.com/gsi/client"></script>
+  <script>
+    const CLIENT_ID = "503826285883-45mi9qcd6vldrkbanu6me6fpqg5dghqs.apps.googleusercontent.com";
+    const API_KEY = "AIzaSyDwMM73FaT5snh18bs1WEE1A5pnXlGaD1M";
+    const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
+    const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
-<script>
-const CLIENT_ID = "503826285883-45mi9qcd6vldrkbanu6me6fpqg5dghqs.apps.googleusercontent.com";
-const API_KEY = "AIzaSyDwMM73FaT5snh18bs1WEE1A5pnXlGaD1M";
+    let tokenClient = null;
+    let gapiReady = false;
+    let gisReady = false;
 
-const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
+    const btnLogin = document.getElementById("btnLogin");
+    const statusBox = document.getElementById("status");
+    const filesBox = document.getElementById("files");
 
-let tokenClient;
-let gapiReady = false;
-let gisReady = false;
+    function setStatus(text) {
+      statusBox.innerText = "الحالة: " + text;
+      console.log(text);
+    }
 
-function gapiLoaded() {
-  gapi.load("client", async () => {
-    await gapi.client.init({
-      apiKey: API_KEY,
-      discoveryDocs: [DISCOVERY_DOC],
-    });
-    gapiReady = true;
-    console.log("gapi ready");
-  });
-}
+    function checkReady() {
+      if (gapiReady && gisReady) {
+        btnLogin.disabled = false;
+        btnLogin.innerText = "عرض الملفات";
+        setStatus("جاهز. اضغط عرض الملفات.");
+      }
+    }
 
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: async (resp) => {
-      if (resp.error) {
-        console.log(resp);
+    function loadGoogleScripts() {
+      setStatus("جاري تحميل مكتبات Google...");
+
+      const script1 = document.createElement("script");
+      script1.src = "https://apis.google.com/js/api.js";
+      script1.onload = () => {
+        setStatus("تم تحميل gapi.js ... جاري التهيئة");
+        gapi.load("client", async () => {
+          try {
+            await gapi.client.init({
+              apiKey: API_KEY,
+              discoveryDocs: [DISCOVERY_DOC]
+            });
+            gapiReady = true;
+            setStatus("تمت تهيئة Google API");
+            checkReady();
+          } catch (err) {
+            console.error("gapi init error:", err);
+            setStatus("فشل تهيئة Google API");
+          }
+        });
+      };
+      script1.onerror = () => {
+        setStatus("فشل تحميل ملف gapi.js");
+      };
+      document.body.appendChild(script1);
+
+      const script2 = document.createElement("script");
+      script2.src = "https://accounts.google.com/gsi/client";
+      script2.onload = () => {
+        try {
+          tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: CLIENT_ID,
+            scope: SCOPES,
+            callback: async (resp) => {
+              if (resp.error) {
+                console.error("OAuth error:", resp);
+                setStatus("صار خطأ بعد تسجيل الدخول");
+                return;
+              }
+              setStatus("تم تسجيل الدخول. جاري جلب الملفات...");
+              await listFiles();
+            }
+          });
+
+          gisReady = true;
+          setStatus("تمت تهيئة Google Sign-In");
+          checkReady();
+        } catch (err) {
+          console.error("gis init error:", err);
+          setStatus("فشل تهيئة Google Sign-In");
+        }
+      };
+      script2.onerror = () => {
+        setStatus("فشل تحميل ملف Google Sign-In");
+      };
+      document.body.appendChild(script2);
+    }
+
+    async function handleAuthClick() {
+      if (!gapiReady || !gisReady || !tokenClient) {
+        setStatus("Google بعده ما صار جاهز");
         return;
       }
 
-      await listFiles();
-    },
-  });
+      try {
+        const currentToken = gapi.client.getToken();
 
-  gisReady = true;
-  console.log("gis ready");
-}
+        if (currentToken === null) {
+          setStatus("جاري فتح تسجيل الدخول...");
+          tokenClient.requestAccessToken({ prompt: "consent" });
+        } else {
+          setStatus("عندك جلسة جاهزة. جاري جلب الملفات...");
+          await listFiles();
+        }
+      } catch (err) {
+        console.error("handleAuthClick error:", err);
+        setStatus("صار خطأ عند الضغط على الزر");
+      }
+    }
 
-function handleAuthClick() {
-  if (!gapiReady || !gisReady) {
-    alert("انتظر ثواني وجرب مرة ثانية");
-    return;
-  }
+    async function listFiles() {
+      try {
+        const response = await gapi.client.drive.files.list({
+          pageSize: 20,
+          fields: "files(id, name, mimeType)"
+        });
 
-  const token = gapi.client.getToken();
+        const files = response.result.files || [];
 
-  if (token === null) {
-    tokenClient.requestAccessToken({ prompt: "consent" });
-  } else {
-    tokenClient.requestAccessToken({ prompt: "" });
-  }
-}
+        if (!files.length) {
+          filesBox.innerHTML = "لا توجد ملفات";
+          setStatus("تم جلب الملفات لكن القائمة فارغة");
+          return;
+        }
 
-async function listFiles() {
-  const response = await gapi.client.drive.files.list({
-    pageSize: 20,
-    fields: "files(id, name)"
-  });
+        let html = "";
+        files.forEach(file => {
+          html += `<div class="file-item">${file.name}</div>`;
+        });
 
-  let html = "";
+        filesBox.innerHTML = html;
+        setStatus("تم جلب الملفات بنجاح");
+      } catch (err) {
+        console.error("listFiles error:", err);
+        filesBox.innerHTML = "فشل جلب الملفات";
+        setStatus("تسجيل الدخول تم، لكن جلب الملفات فشل");
+      }
+    }
 
-  if (response.result.files.length === 0) {
-    html = "لا توجد ملفات";
-  } else {
-    response.result.files.forEach(file => {
-      html += `<p>${file.name}</p>`;
-    });
-  }
-
-  document.getElementById("files").innerHTML = html;
-}
-
-gapiLoaded();
-gisLoaded();
-</script>
-
+    loadGoogleScripts();
+  </script>
 </body>
 </html>

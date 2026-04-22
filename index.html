@@ -1,3 +1,20 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive Demo</title>
+</head>
+
+<body style="font-family: Arial; padding:20px">
+
+<h2>عرض ملفات Google Drive</h2>
+
+<button onclick="handleAuthClick()">عرض الملفات</button>
+
+<div id="files" style="margin-top:20px"></div>
+
+<!-- مكتبات جوجل -->
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
 
@@ -9,40 +26,75 @@ const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/res
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
 let tokenClient;
+let gapiReady = false;
+let gisReady = false;
 
-function handleAuthClick() {
+function gapiLoaded() {
+  gapi.load("client", async () => {
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: [DISCOVERY_DOC],
+    });
+    gapiReady = true;
+    console.log("gapi ready");
+  });
+}
+
+function gisLoaded() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     callback: async (resp) => {
-      if (resp.error) return;
+      if (resp.error) {
+        console.log(resp);
+        return;
+      }
 
-      // 🔥 التهيئة الصح
-      await new Promise(resolve => {
-        gapi.load("client", async () => {
-          await gapi.client.init({
-            apiKey: API_KEY,
-            discoveryDocs: [DISCOVERY_DOC],
-          });
-          resolve();
-        });
-      });
-
-      // 🔥 جلب الملفات
-      const response = await gapi.client.drive.files.list({
-        pageSize: 10,
-        fields: "files(id, name)"
-      });
-
-      let html = "";
-      response.result.files.forEach(file => {
-        html += `<p>${file.name}</p>`;
-      });
-
-      document.getElementById("files").innerHTML = html;
+      await listFiles();
     },
   });
 
-  tokenClient.requestAccessToken({ prompt: "consent" });
+  gisReady = true;
+  console.log("gis ready");
 }
+
+function handleAuthClick() {
+  if (!gapiReady || !gisReady) {
+    alert("انتظر ثواني وجرب مرة ثانية");
+    return;
+  }
+
+  const token = gapi.client.getToken();
+
+  if (token === null) {
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    tokenClient.requestAccessToken({ prompt: "" });
+  }
+}
+
+async function listFiles() {
+  const response = await gapi.client.drive.files.list({
+    pageSize: 20,
+    fields: "files(id, name)"
+  });
+
+  let html = "";
+
+  if (response.result.files.length === 0) {
+    html = "لا توجد ملفات";
+  } else {
+    response.result.files.forEach(file => {
+      html += `<p>${file.name}</p>`;
+    });
+  }
+
+  document.getElementById("files").innerHTML = html;
+}
+
+gapiLoaded();
+gisLoaded();
 </script>
+
+</body>
+</html>

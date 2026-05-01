@@ -1,631 +1,1144 @@
 <!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Google Drive Folder Viewer</title>
-  <style>
-    * { box-sizing: border-box; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
-      background:#f4f6fb;
-      color:#18243a;
-    }
-    .wrap{
-      max-width:980px;
-      margin:0 auto;
-      padding:18px 14px 40px;
-    }
-    .card{
-      background:#fff;
-      border:1px solid #e4ebf5;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 10px 28px rgba(19,38,71,.06);
-      margin-bottom:14px;
-    }
-    h1{
-      margin:0 0 8px;
-      font-size:28px;
-    }
-    .sub{
-      color:#62748f;
-      line-height:1.7;
-      font-size:14px;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:14px;
-    }
-    button{
-      border:0;
-      border-radius:12px;
-      padding:12px 16px;
-      cursor:pointer;
-      font-size:15px;
-      transition:.15s ease;
-    }
-    button:hover{ transform:translateY(-1px); }
-    button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
-    .primary{ background:#0d6efd; color:#fff; }
-    .secondary{ background:#eaf2ff; color:#0d57d7; }
-    .danger{ background:#fff1f3; color:#bf264d; }
-    .ghost{ background:#f6f8fc; color:#334862; border:1px solid #d9e3f1; }
-    .whatsapp{ background:#25D366; color:#fff; }
-    .status{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid #e4ebf5;
-      background:#f8fbff;
-      font-size:14px;
-      color:#334862;
-      line-height:1.7;
-    }
-    .toolbar{
-      display:grid;
-      grid-template-columns:1.3fr .8fr auto auto auto;
-      gap:10px;
-      margin-top:12px;
-    }
-    .toolbar input,
-    .toolbar select{
-      width:100%;
-      border:1px solid #d6e0ef;
-      border-radius:12px;
-      background:#fff;
-      padding:12px 13px;
-      font-size:14px;
-      outline:none;
-    }
-    .stats{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .pill{
-      border-radius:999px;
-      background:#f1f6ff;
-      color:#27539a;
-      border:1px solid #d7e6ff;
-      padding:8px 12px;
-      font-size:13px;
-    }
-    .list{
-      display:grid;
-      gap:12px;
-      margin-top:14px;
-    }
-    .item{
-      display:grid;
-      grid-template-columns:auto 1fr auto;
-      gap:12px;
-      align-items:start;
-      border:1px solid #e5edf7;
-      border-radius:16px;
-      padding:14px;
-      background:#fff;
-    }
-    .check{
-      transform:scale(1.2);
-      margin-top:5px;
-    }
-    .title{
-      font-weight:700;
-      font-size:16px;
-      line-height:1.7;
-      word-break:break-word;
-      margin-bottom:6px;
-    }
-    .meta{
-      color:#6b7d96;
-      font-size:13px;
-      line-height:1.8;
-    }
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      justify-content:flex-end;
-    }
-    .linkbtn{
-      text-decoration:none;
-      background:#f6f9ff;
-      color:#0f5edb;
-      border:1px solid #dbe7fb;
-      border-radius:11px;
-      padding:9px 12px;
-      font-size:14px;
-      display:inline-block;
-    }
-    .tag{
-      display:inline-block;
-      margin-top:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#f4f7fb;
-      color:#586b84;
-      font-size:12px;
-      border:1px solid #e0e8f4;
-    }
-    .empty{
-      text-align:center;
-      padding:28px 14px;
-      color:#687b95;
-      border-radius:16px;
-      border:1px dashed #d6dfed;
-      background:#fbfcff;
-    }
-    .hint{
-      margin-top:10px;
-      color:#7a8798;
-      font-size:13px;
-      line-height:1.8;
-    }
-    .selectedBox{
-      margin-top:12px;
-      border-top:1px solid #ebf0f7;
-      padding-top:12px;
-      color:#4d617d;
-      font-size:14px;
-      line-height:1.8;
-    }
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(15,23,42,.58);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-      padding:14px;
-    }
-    .modal.show{ display:flex; }
-    .modal-card{
-      width:min(1100px,100%);
-      height:min(88vh,100%);
-      background:#fff;
-      border-radius:18px;
-      overflow:hidden;
-      display:grid;
-      grid-template-rows:auto 1fr;
-      box-shadow:0 18px 50px rgba(0,0,0,.20);
-    }
-    .modal-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      padding:14px 16px;
-      border-bottom:1px solid #e7edf6;
-      background:#fafcff;
-    }
-    .modal-title{
-      font-weight:700;
-      line-height:1.6;
-      word-break:break-word;
-    }
-    .closeBtn{
-      background:#f2f5fa;
-      color:#2e3f58;
-      border:1px solid #dce5f0;
-      padding:10px 14px;
-      border-radius:12px;
-    }
-    iframe{
-      width:100%;
-      height:100%;
-      border:0;
-      background:#fff;
-    }
-    @media (max-width: 760px){
-      .toolbar{ grid-template-columns:1fr; }
-      .item{ grid-template-columns:auto 1fr; }
-      .actions{ grid-column:1 / -1; justify-content:flex-start; }
-      h1{ font-size:24px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>طلب كشف حساب</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="كشف حساب">
+  <meta name="theme-color" content="#0d6efd">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+body{
+  background:#f5f7fa;
+  font-family:system-ui;
+  padding-bottom:120px;
+  /* إزالة overflow:hidden من body — كان يمنع scroll الصفحة الرئيسية */
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+.container{max-width:600px;margin:auto;padding:15px}
+
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.top-bar h1{font-size:22px;font-weight:800}
+.top-bar-left{display:flex;align-items:center;gap:10px}
+
+.menu-btn{width:45px;height:45px;border:none;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.08);font-size:22px;cursor:pointer}
+.logo{width:45px;height:45px;border-radius:50%;background:#0d6efd;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px}
+
+.card{background:#fff;padding:18px;border-radius:18px;box-shadow:0 8px 25px rgba(0,0,0,.06);margin-bottom:15px}
+.section-title{font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+.input-group{margin-bottom:15px}
+.input-group label{display:block;font-weight:700;margin-bottom:6px;font-size:14px}
+.input-group input{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;font-size:16px}
+.input-group select{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;font-size:16px;background:#fff}
+
+.year-row{display:flex;gap:10px;align-items:center}
+.year-row select{flex:1}
+
+.quick-brands{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+.brand-btn{padding:6px;border-radius:14px;border:2px solid #e3e3e3;background:#fff;font-weight:800;font-size:16px;cursor:pointer;height:38px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.brand-btn.active{background:#0d6efd;color:#fff;border-color:#0d6efd}
+
+.info-box{background:linear-gradient(135deg,#f8fbff,#eef4ff);padding:14px;border-radius:16px;margin-top:10px;border:1.5px solid #dbe4ff;box-shadow:0 8px 22px rgba(13,110,253,.08)}
+.info-row{display:flex;justify-content:space-between;margin-bottom:8px;gap:10px}
+
+.bottom-bar{position:fixed;bottom:12px;right:0;left:0;background:rgba(255,255,255,.88);border-top:1px solid #eee;padding:12px;z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);box-shadow:0 -8px 24px rgba(0,0,0,.05)}
+.bottom-wrap{max-width:600px;margin:auto;display:flex;gap:10px}
+
+.btn{flex:1;padding:14px;border:none;border-radius:14px;font-weight:800;font-size:16px;cursor:pointer}
+.btn-primary{background:#0d6efd;color:#fff;position:relative;overflow:hidden;box-shadow:0 10px 24px rgba(13,110,253,.24)}
+.btn-primary:hover{box-shadow:0 14px 30px rgba(13,110,253,.28)}
+.btn-secondary{background:linear-gradient(135deg,#f8fbff,#eef4ff);color:#0d6efd;border:1.5px solid #dbe4ff;box-shadow:0 8px 22px rgba(13,110,253,.08)}
+
+.year-btn-save{width:48px;height:48px;border:none;border-radius:12px;background:linear-gradient(135deg,#0d6efd,#0b5ed7);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 18px rgba(13,110,253,.20);transition:.2s ease;flex:0 0 48px}
+
+/* شاشة البحث */
+#searchOverlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:999;
+  padding:15px;
+  opacity:0;visibility:hidden;
+  transform:translateY(18px) scale(.985);
+  transition:opacity .28s ease,transform .32s cubic-bezier(.22,1,.36,1),visibility .28s ease;
+  overflow-y:auto; /* يسمح بالـ scroll داخل نافذة البحث فقط */
+}
+#searchOverlay.show{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+
+.search-top{display:flex;gap:10px;margin-bottom:12px}
+#searchInput{flex:1;padding:14px 16px;border-radius:16px;border:1.5px solid #dbe4ff;font-size:16px;background:linear-gradient(135deg,#f8fbff,#eef4ff);color:#0f172a;outline:none;box-shadow:0 8px 22px rgba(13,110,253,.08);transition:.25s ease}
+#searchInput:focus{border-color:#0d6efd;box-shadow:0 0 0 4px rgba(13,110,253,.12),0 10px 25px rgba(13,110,253,.10)}
+
+#searchResults{max-height:52vh;overflow:auto;border-radius:14px;background:#fff}
+
+.search-item{padding:12px 14px;border:1px solid #edf2ff;border-radius:14px;cursor:pointer;font-size:15px;line-height:1.2;background:#fff;margin-bottom:8px;transition:.2s ease}
+.search-item:hover{background:#f8fbff;border-color:#cfe0ff;box-shadow:0 6px 16px rgba(13,110,253,.08)}
+.search-item.select-mode{display:flex;align-items:center;gap:10px}
+.search-item-name{flex:1}
+.search-checkbox{width:20px;height:20px;accent-color:#0d6efd}
+
+.search-brand-box{background:linear-gradient(135deg,#f8fbff,#eef4ff);border:1.5px solid #dbe4ff;padding:12px 14px;border-radius:16px;margin-bottom:12px;font-weight:800;color:#0d6efd;box-shadow:0 8px 22px rgba(13,110,253,.08)}
+.search-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#selectionTools{display:flex;gap:8px;flex-wrap:wrap}
+
+.mini-btn{border:none;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:800;cursor:pointer;background:#eef1f5;color:#222}
+.mini-btn.primary{background:#0d6efd;color:#fff}
+.mini-btn.danger{background:#fbe7e7;color:#b42318}
+
+.selected-count-box{background:#f7f8fb;border:1px solid #eceff3;padding:10px 12px;border-radius:12px;margin-bottom:10px;font-weight:800}
+.bulk-send-bar{position:sticky;bottom:0;background:#fff;padding-top:12px;margin-top:12px}
+
+/* القائمة الجانبية */
+.sidebar-overlay{position:fixed;top:0;right:0;left:0;bottom:0;background:rgba(0,0,0,.35);z-index:1000;display:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.sidebar{position:fixed;top:0;right:-280px;width:280px;height:100%;background:#fff;z-index:1001;padding:20px;box-shadow:-4px 0 16px rgba(0,0,0,.12);transition:right .32s cubic-bezier(.22,1,.36,1),box-shadow .28s ease}
+.sidebar.open{right:0;box-shadow:-14px 0 30px rgba(0,0,0,.15)}
+.sidebar-overlay.show{display:block}
+.sidebar-title{font-size:20px;font-weight:800;margin-bottom:20px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;background:#f7f8fb;margin-bottom:10px;cursor:pointer;font-weight:700}
+.sidebar-item i{font-size:20px;color:#0d6efd}
+.hidden-file{display:none}
+
+/* حالة الطلب */
+#statusText{font-weight:700;margin-bottom:10px;transition:.2s ease}
+.status-track{position:relative;width:100%;height:10px;background:#e9ecef;border-radius:999px;overflow:hidden}
+
+/* تعريف واحد فقط لـ statusBar — إزالة التعريف المكرر */
+#statusBar{
+  width:0%;height:100%;
+  background:linear-gradient(90deg,#0d6efd,#6ea8fe,#0d6efd);
+  background-size:200% 100%;
+  transition:width .45s ease;
+  position:relative;
+  animation:barFlow 2.2s linear infinite;
+}
+#statusBar::after{content:"";position:absolute;top:0;left:-35%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:barShine 1.8s linear infinite}
+
+#statusLog div{display:flex;align-items:center;gap:8px;background:#ffffff;border:1px solid #e6e9ef;padding:8px 12px;border-radius:12px;margin-bottom:6px;font-size:14px;font-weight:600;box-shadow:0 4px 10px rgba(0,0,0,.04);opacity:0;transform:translateY(-6px);animation:fadeSlide .3s ease forwards}
+
+#statusCard{transition:.25s ease;margin-top:15px}
+#statusCard.processing{border:1px solid #dbe4ff;box-shadow:0 10px 28px rgba(13,110,253,.10);animation:statusBreath 1.7s ease-in-out infinite}
+#statusCard.done{border:1px solid #d9fbe6;box-shadow:0 10px 28px rgba(34,197,94,.12)}
+#statusCard.error{border:1px solid #ffd5d5;box-shadow:0 10px 28px rgba(220,38,38,.12)}
+
+/* Overlay حالة الطلب */
+#statusOverlay{position:fixed;inset:0;display:none;align-items:flex-start;justify-content:center;padding-top:90px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:3000}
+#statusOverlay.show{pointer-events:auto;display:flex}
+#statusOverlay .overlay-card{width:min(92%,560px);animation:overlaySlideUp .3s ease}
+
+/* صفحات */
+.app-page{display:none}
+.app-page.active{display:block}
+
+.files-page-top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.files-back-btn{width:46px;height:46px;border:none;border-radius:12px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.08);font-size:20px;cursor:pointer}
+.files-title{font-size:22px;font-weight:800}
+.files-tools{display:flex;gap:10px;margin-bottom:14px}
+.files-tools .btn{flex:1}
+
+#filesPageList{margin-top:12px}
+.file-row-card{background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:10px;box-shadow:0 8px 20px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px;border:1px solid #edf2ff;cursor:pointer}
+.file-row-check{width:20px;height:20px;accent-color:#0d6efd;flex:0 0 auto}
+.file-row-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex:0 0 42px;background:linear-gradient(135deg,#0d6efd,#4f8cff)}
+.file-row-info{flex:1;min-width:0}
+.file-row-name{font-size:14px;font-weight:800;color:#1f2a44;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.file-row-meta{font-size:12px;color:#6e7b96}
+.file-empty{background:#fff;border-radius:16px;padding:18px;text-align:center;color:#6e7b96;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.hidden-native-input{display:none}
+
+/* ===== Animations ===== */
+:root{--ease-premium:cubic-bezier(.22,1,.36,1)}
+
+@keyframes pageFadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes softRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes overlaySlideUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes overlayFade{from{opacity:0}to{opacity:1}}
+@keyframes fadeSlide{to{opacity:1;transform:translateY(0)}}
+@keyframes barShine{0%{left:120%}100%{left:-35%}}
+@keyframes barFlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes statusBreath{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.01)}}
+@keyframes donePop{0%{transform:scale(.96);opacity:.8}65%{transform:scale(1.02);opacity:1}100%{transform:scale(1)}}
+@keyframes errorShake{0%,100%{transform:translateX(0)}25%{transform:translateX(4px)}50%{transform:translateX(-4px)}75%{transform:translateX(2px)}}
+@keyframes softPop{0%{transform:scale(1)}50%{transform:scale(.97)}100%{transform:scale(1)}}
+@keyframes activeBrandPop{0%{transform:scale(.92)}70%{transform:scale(1.04)}100%{transform:translateY(-1px) scale(1.02)}}
+@keyframes bgFloat{0%{transform:translateY(0) scale(1)}100%{transform:translateY(-8px) scale(1.02)}}
+@keyframes pageEnter{0%{opacity:0;transform:translateY(24px) scale(.985)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes successPop{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+@keyframes checkBounce{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes blinkEye{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)}}
+@keyframes confettiFall{0%{transform:translateY(-120px) rotate(0deg);opacity:1}100%{transform:translateY(115vh) rotate(720deg);opacity:0}}
+@keyframes confettiSwing{0%{margin-left:0}50%{margin-left:18px}100%{margin-left:-18px}}
+@keyframes donePulseStrong{0%{transform:scale(1)}35%{transform:scale(1.02)}70%{transform:scale(1.01)}100%{transform:scale(1)}}
+@keyframes excelPulse{0%{transform:scale(1);box-shadow:0 0 0 rgba(13,110,253,0)}50%{transform:scale(1.06);box-shadow:0 0 18px rgba(13,110,253,.35)}100%{transform:scale(1);box-shadow:0 0 0 rgba(13,110,253,0)}}
+@keyframes overlayFlash{0%{opacity:0}25%{opacity:.22}100%{opacity:0}}
+
+body{animation:pageEnter .7s var(--ease-premium)}
+
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 10%,rgba(13,110,253,.07),transparent 24%),radial-gradient(circle at 88% 18%,rgba(79,140,255,.06),transparent 22%),radial-gradient(circle at 50% 100%,rgba(13,110,253,.05),transparent 26%);z-index:-1;animation:bgFloat 12s ease-in-out infinite alternate}
+
+.container{animation:pageEnter .7s var(--ease-premium)}
+.top-bar,.input-group,.section-title,.info-box{animation:softRise .65s var(--ease-premium);animation-fill-mode:both}
+.top-bar{animation-delay:.02s}
+.input-group:nth-of-type(1){animation-delay:.08s}
+.input-group:nth-of-type(2){animation-delay:.14s}
+.input-group:nth-of-type(3){animation-delay:.20s}
+.section-title{animation-delay:.26s}
+.info-box{animation-delay:.32s}
+
+.card,.info-box,.menu-btn,.year-btn-save,.brand-btn,.btn,.search-item,.sidebar-item,#statusCard{transition:transform .24s var(--ease-premium),box-shadow .24s var(--ease-premium),border-color .24s ease,background .24s ease,opacity .24s ease;will-change:transform}
+.card:hover,.info-box:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.08)}
+.menu-btn:hover,.year-btn-save:hover,.btn:hover,.sidebar-item:hover{transform:translateY(-2px) scale(1.01)}
+.menu-btn:active,.year-btn-save:active,.btn:active,.brand-btn:active,.sidebar-item:active,.search-item:active{transform:scale(.97)}
+
+.brand-btn.active{transform:translateY(-1px) scale(1.02);box-shadow:0 12px 24px rgba(13,110,253,.18);animation:activeBrandPop .35s var(--ease-premium)}
+
+.brand-btn::after,.btn-primary::after,.year-btn-save::after{content:"";position:absolute;top:0;left:-120%;width:80%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.48),transparent);transform:skewX(-20deg);transition:left .65s var(--ease-premium);pointer-events:none}
+.brand-btn:hover::after,.btn-primary:hover::after,.year-btn-save:hover::after{left:135%}
+
+.input-group input:focus,.input-group select:focus,#searchInput:focus{border-color:#0d6efd;box-shadow:0 0 0 4px rgba(13,110,253,.10),0 10px 24px rgba(13,110,253,.08);outline:none}
+
+#statusCard.done{animation:donePop .55s var(--ease-premium)}
+#statusCard.error{animation:errorShake .38s ease}
+#statusCard.success-anim{animation:successPop .4s ease,donePulseStrong .9s ease}
+
+.success-check{font-size:42px;text-align:center;margin-bottom:10px;animation:checkBounce .5s ease}
+.eye{display:inline-block;animation:blinkEye 6s infinite}
+.excel-ready{animation:excelPulse 1.2s infinite}
+
+#statusOverlay.success-celebration::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at center,rgba(34,197,94,.18),rgba(255,255,255,0) 60%);animation:overlayFlash .85s ease forwards}
+
+#confettiLayer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:3500;display:none}
+#confettiLayer.show{display:block}
+.confetti-piece{position:absolute;top:-40px;width:10px;height:18px;border-radius:4px;opacity:0;animation-name:confettiFall,confettiSwing;animation-timing-function:linear,ease-in-out;animation-fill-mode:forwards,forwards}
+.confetti-piece.shape-circle{width:12px;height:12px;border-radius:50%}
+.confetti-piece.shape-strip{width:8px;height:22px;border-radius:3px}
+
+/* صفحة الملفات — bottom-wrap ثابت مثل الصفحة الرئيسية */
+#pageFiles{overflow-y:auto;height:100vh}
+#pageFiles .bottom-bar-files{position:fixed;bottom:12px;right:0;left:0;background:rgba(255,255,255,.88);border-top:1px solid #eee;padding:12px;z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#pageFiles .bottom-bar-files .bottom-wrap{max-width:600px;margin:auto;display:flex;gap:10px}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}}
+</style>
+
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>عرض ملفات Google Drive</h1>
-      <div class="sub">
-        هذه النسخة تعرض ملفات <b>فولدر واحد فقط</b> من Google Drive، وتحتوي على:
-        بحث، فلتر، تحديد ملفات، وعرض PDF داخل التطبيق.
-      </div>
 
-      <div class="row">
-        <button id="loginBtn" class="primary" disabled>جاري تحميل Google...</button>
-        <button id="refreshBtn" class="secondary" disabled>تحديث الملفات</button>
-        <button id="logoutBtn" class="danger" disabled>تسجيل الخروج</button>
-      </div>
+<!-- ===== الصفحة الرئيسية ===== -->
 
-      <div id="status" class="status">الحالة: جاري تحميل مكتبات Google...</div>
+<div id="pageMain" class="app-page active">
 
-      <div class="hint">
-        مهم: بدّل قيمة <b>FOLDER_ID</b> داخل الكود إلى معرّف الفولدر الذي تريد عرضه فقط.
-      </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-title">القائمة</div>
+    <div class="sidebar-item" onclick="document.getElementById('excelFile').click();toggleSidebar()">
+      <i class="bi bi-file-earmark-excel"></i><span>استيراد Excel</span>
+    </div>
+    <div class="sidebar-item" onclick="restartBayanFromWeb();toggleSidebar()">
+      <i class="bi bi-arrow-clockwise"></i><span>إعادة تشغيل البيان</span>
+    </div>
+    <div class="sidebar-item" onclick="deleteSavedData();toggleSidebar()">
+      <i class="bi bi-trash3"></i><span>حذف البيانات</span>
+    </div>
+    <input type="file" id="excelFile" class="hidden-file" accept=".xlsx,.xls">
+  </div>
 
-      <div class="selectedBox" id="selectedBox">
-        الملفات المحددة: 0
+  <div class="container">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <h1>طلب كشف حساب</h1>
       </div>
+      <div class="logo"><i class="bi bi-receipt"></i></div>
     </div>
 
-    <div class="card">
-      <div class="toolbar">
-        <input id="searchInput" type="text" placeholder="بحث باسم الملف..." />
-        <select id="typeFilter">
-          <option value="all">كل الملفات</option>
-          <option value="pdf">PDF فقط</option>
-          <option value="excel">Excel فقط</option>
-          <option value="folder">مجلدات فقط</option>
-        </select>
-        <button id="selectAllBtn" class="ghost">تحديد الكل</button>
-        <button id="clearSelectBtn" class="ghost">إلغاء التحديد</button>
-        <button id="sendWhatsBtn" class="whatsapp">إرسال واتساب</button>
-      </div>
+```
+<!-- كرت الملفات -->
+<div class="card" style="padding:14px;margin-bottom:15px;cursor:pointer;" onclick="openShortcutPDF()">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0d6efd,#4f8cff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">
+      <i class="bi bi-folder2-open"></i>
+    </div>
+    <div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:4px;">صفحة الملفات</div>
+      <div style="font-size:13px;color:#6e7b96;">استعراض الملفات وتحديدها وإرسال المحدد</div>
+    </div>
+  </div>
+</div>
 
-      <div class="stats">
-        <div class="pill">عدد النتائج: <span id="countLabel">0</span></div>
-      </div>
+<div class="input-group">
+  <label>اختر السنة</label>
+  <div class="year-row">
+    <select id="yearSelect">
+      <option value="2020">2020</option><option value="2021">2021</option>
+      <option value="2022">2022</option><option value="2023">2023</option>
+      <option value="2024">2024</option><option value="2025">2025</option>
+      <option value="2026" selected>2026</option>
+    </select>
+    <button type="button" class="year-btn-save" onclick="sendYearToFirebase()">
+      <i class="bi bi-check2-circle"></i>
+    </button>
+  </div>
+</div>
 
-      <div id="fileList" class="list">
-        <div class="empty">لا توجد ملفات بعد.</div>
-      </div>
+<div class="input-group">
+  <label>اختر البراند</label>
+  <div class="quick-brands">
+    <button type="button" class="brand-btn" onclick="setBrand('FOREVER',this)">FOREVER</button>
+    <button type="button" class="brand-btn" onclick="setBrand('CHARACTER',this)">CHARACTER</button>
+    <button type="button" class="brand-btn" onclick="setBrand('ROSELLA',this)">ROSELLA</button>
+    <button type="button" class="brand-btn active" onclick="setBrand('ALL',this)">الكل</button>
+  </div>
+</div>
+
+<div class="input-group">
+  <label>اسم الزبون</label>
+  <input type="text" id="customerName" placeholder="اضغط للبحث" onclick="openSearch()" readonly>
+</div>
+
+<div class="section-title">المعاينة <span class="eye">👁️</span></div>
+<div class="info-box">
+  <div class="info-row"><div>البراند</div><div id="previewBrand">—</div></div>
+  <div class="info-row"><div>اسم الزبون</div><div id="previewCustomer">—</div></div>
+</div>
+
+<!-- overlay حالة الطلب -->
+<div id="statusOverlay">
+  <div class="overlay-card">
+    <div id="statusCard" class="card" style="display:block;">
+      <div id="successIcon" style="display:none;" class="success-check">✅</div>
+      <div class="section-title"><i class="bi bi-hourglass-split"></i> حالة الطلب</div>
+      <div id="statusText">جاري إرسال الطلب...</div>
+      <div id="statusLog" style="font-size:14px;line-height:1.8;margin-bottom:10px;color:#444;"></div>
+      <div class="status-track"><div id="statusBar"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="confettiLayer"></div>
+```
+
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-wrap">
+      <button class="btn btn-secondary" onclick="deleteAllFiles()">🗑️ حذف الملفات</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitRequest()">إرسال الطلب</button>
     </div>
   </div>
 
-  <div id="pdfModal" class="modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div id="pdfTitle" class="modal-title">عرض PDF</div>
-        <button id="closePdfBtn" class="closeBtn">إغلاق</button>
+  <!-- شاشة البحث -->
+
+  <div id="searchOverlay">
+    <div class="search-brand-box" id="searchBrandTitle">البراند: —</div>
+    <div class="search-top">
+      <input type="text" id="searchInput" placeholder="ابحث عن اسم الزبون">
+      <button class="btn btn-secondary" style="flex:0 0 auto;padding:12px 16px" onclick="closeSearch()">إلغاء</button>
+    </div>
+    <div class="search-actions">
+      <button type="button" class="mini-btn primary" id="startSelectBtn" onclick="startSelectionMode()">تحديد</button>
+      <div id="selectionTools" style="display:none;">
+        <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
+        <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
+        <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
       </div>
-      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+    <div id="selectedCountBox" class="selected-count-box" style="display:none;">
+      عدد المحددين: <span id="selectedCount">0</span>
+    </div>
+    <div id="searchResults"></div>
+    <div id="bulkSendBar" class="bulk-send-bar" style="display:none;">
+      <button type="button" class="btn btn-primary" id="bulkSendBtn" onclick="sendSelectedCustomers()">
+        إرسال المحددين (<span id="bulkCount">0</span>)
+      </button>
     </div>
   </div>
 
-  <script>
-    const CLIENT_ID = "503826285883-45mi9qcd6vldrkbanu6me6fpqg5dghqs.apps.googleusercontent.com";
-    const API_KEY = "AIzaSyDwMM73FaT5snh18bs1WEE1A5pnXlGaD1M";
-    const FOLDER_ID = "1o_bPDqaTYQ3uU-fwvZbttJJdRzKCs4Os";
-    const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-    const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
+</div><!-- /pageMain -->
 
-    const MIME = {
-      folder: "application/vnd.google-apps.folder",
-      pdf: "application/pdf",
-      xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      xls: "application/vnd.ms-excel",
-      sheet: "application/vnd.google-apps.spreadsheet"
-    };
+<!-- ===== صفحة الملفات ===== -->
 
-    let tokenClient = null;
-    let gapiReady = false;
-    let gisReady = false;
-    let allFiles = [];
-    let selectedIds = new Set();
+<div id="pageFiles" class="app-page">
+  <div class="container">
+    <div class="files-page-top">
+      <button class="files-back-btn" onclick="backToMainPage()"><i class="bi bi-arrow-right"></i></button>
+      <div class="files-title">الملفات</div>
+    </div>
 
-    const loginBtn = document.getElementById("loginBtn");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const sendWhatsBtn = document.getElementById("sendWhatsBtn");
-    const statusEl = document.getElementById("status");
-    const fileListEl = document.getElementById("fileList");
-    const searchInput = document.getElementById("searchInput");
-    const typeFilter = document.getElementById("typeFilter");
-    const countLabel = document.getElementById("countLabel");
-    const selectedBox = document.getElementById("selectedBox");
-    const selectAllBtn = document.getElementById("selectAllBtn");
-    const clearSelectBtn = document.getElementById("clearSelectBtn");
-    const pdfModal = document.getElementById("pdfModal");
-    const pdfFrame = document.getElementById("pdfFrame");
-    const pdfTitle = document.getElementById("pdfTitle");
-    const closePdfBtn = document.getElementById("closePdfBtn");
+```
+<div class="card" style="margin-bottom:14px;">
+  <div class="section-title"><i class="bi bi-folder2-open"></i> إدارة الملفات</div>
+  <div style="font-size:13px;color:#6e7b96;line-height:1.8;margin-bottom:12px;">
+    اختر ملفات من الجهاز أو Google Drive أو iCloud، وبعدها تگدر تحددها وترسل المحدد.
+  </div>
+  <div class="files-tools">
+    <button class="btn btn-primary" type="button" onclick="openFilesPickerPage()">اختيار ملفات</button>
+    <button class="btn btn-secondary" type="button" onclick="openFolderPickerPage()">اختيار مجلد</button>
+  </div>
+  <div class="files-tools">
+    <button class="btn btn-secondary" type="button" onclick="selectAllPickedFiles()">تحديد الكل</button>
+    <button class="btn btn-secondary" type="button" onclick="clearPickedSelection()">إلغاء التحديد</button>
+  </div>
+  <div class="files-tools">
+    <button class="btn btn-secondary" type="button" onclick="clearPickedFiles()">مسح القائمة</button>
+  </div>
+  <div style="font-size:12px;color:#6e7b96;line-height:1.8;margin-top:4px;">
+    محاولة ربط أقرب للمجلد: زر <b>اختيار مجلد</b> قد يجلب كل ملفات المجلد دفعة واحدة.
+  </div>
+  <input type="file" id="filesPageInput" class="hidden-native-input" multiple>
+  <input type="file" id="folderPageInput" class="hidden-native-input" webkitdirectory multiple>
+  <div id="filesPageList" class="file-empty">ماكو ملفات مختارة حالياً</div>
+</div>
+```
 
-    function setStatus(text) {
-      statusEl.textContent = "الحالة: " + text;
-      console.log(text);
-    }
+  </div>
 
-    function updateSelectedBox() {
-      selectedBox.textContent = "الملفات المحددة: " + selectedIds.size;
-    }
+  <!-- bottom-bar ثابت لصفحة الملفات — متسق مع الصفحة الرئيسية -->
 
-    function escapeHtml(text) {
-      return (text || "").replace(/[&<>"']/g, function(m) {
-        return ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        })[m];
-      });
-    }
+  <div class="bottom-bar">
+    <div class="bottom-wrap">
+      <button class="btn btn-primary" type="button" id="sendPickedFilesBtn" onclick="sendPickedFiles()" disabled>إرسال المحدد</button>
+    </div>
+  </div>
+</div><!-- /pageFiles -->
 
-    function maybeEnableUI() {
-      if (gapiReady && gisReady) {
-        loginBtn.disabled = false;
-        loginBtn.textContent = "عرض الملفات";
-        setStatus("جاهز. اضغط عرض الملفات.");
-      }
-    }
+<!-- فيديو إبقاء الشاشة مستيقظة -->
 
-    function typeLabel(file) {
-      const mt = file.mimeType;
-      const name = (file.name || "").toLowerCase();
-      if (mt === MIME.folder) return "مجلد";
-      if (mt === MIME.pdf || name.endsWith(".pdf")) return "PDF";
-      if ([MIME.xlsx, MIME.xls, MIME.sheet].includes(mt) || name.endsWith(".xlsx") || name.endsWith(".xls")) return "Excel";
-      return "ملف";
-    }
+<video id="keepAwakeVideo" loop muted playsinline style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;top:-9999px;">
+  <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAGZnJlZQAAAm1tZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NCByMzA5NSBiZWU0MDAwIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMiAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTEgZGVibG9jaz0wOjA6MCBhbmFseXNlPTA6MCBtZT1kaWEgc3VibWU9MCBwc3k9MCBwc3lfcmQ9MC4wMDowLjAwIG1peGVkX3JlZj0wIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0wIHRyZWxsaXM9MCA4eDhkY3Q9MCBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0wIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0xIGtleWludF9taW49MSBzY2VuZWN1dD0wIGludHJhX3JlZnJlc2g9MCByYz1jcnYgbWJ0cmVlPTAgY3JmPTUxLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MAAAABxpZHRzAAAAAAAAAABlAAAD6AAAABhpc28yYXZjMW1wNDEAAABsbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAABdwAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAjR0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+gAAAAAAABdwAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAQAAAAEAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAXcAAAEAAABAAAAAAGmbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAyAAAAEABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAAB/W1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAa1zdGJsAAAA0XN0c2QAAAAAAAAAAQAAAMFhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQABAEgAAABIAAAAAAAAAAEVTGF2YzU5LjM3LjEwMAAAAAAAABj//wAAADVhdmNDAWQACv/hABdnZAAKrNlCBEAAAAMAEAAAAwA8DxIllgEABmjr48siwP34+AAAAAAQcGFzcAAAAAEAAAAUYml0cgAAAAAAAC4tAAAAABhzdHRzAAAAAAAAAAEAAAABAAACAAAAABRzdHNzAAAAAAAAAAEAAAABAAAAFHN0c2MAAAAAAAAAAQAAAAEAAAABAAAAAQAAABRzdHN6AAAAAAAAAHUAAAABAAAAFHN0Y28AAAAAAAAAAQAAADYAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAAAQAAAABMYXZmNTkuMjcuMTAw" type="video/mp4">
+</video>
 
-    function matchesFilter(file, filterValue) {
-      const mt = file.mimeType;
-      const name = (file.name || "").toLowerCase();
-      if (filterValue === "all") return true;
-      if (filterValue === "folder") return mt === MIME.folder;
-      if (filterValue === "pdf") return mt === MIME.pdf || name.endsWith(".pdf");
-      if (filterValue === "excel") {
-        return [MIME.xlsx, MIME.xls, MIME.sheet].includes(mt) || name.endsWith(".xlsx") || name.endsWith(".xls");
-      }
-      return true;
-    }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, child, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    function isPdf(file) {
-      const mt = file.mimeType;
-      const name = (file.name || "").toLowerCase();
-      return mt === MIME.pdf || name.endsWith(".pdf");
-    }
+const app = initializeApp({
+  apiKey: "AIzaSyDaQ7Ur6f7_ugSTy2_u0-gPEtUsFzhh82U",
+  authDomain: "kashf-system.firebaseapp.com",
+  databaseURL: "https://kashf-system-default-rtdb.firebaseio.com",
+  projectId: "kashf-system",
+  storageBucket: "kashf-system.firebasestorage.app",
+  messagingSenderId: "987561323340",
+  appId: "1:987561323340:web:19d72fce8456f2fdf9bde9"
+});
 
-    function getFilteredFiles() {
-      const q = searchInput.value.trim().toLowerCase();
-      const filterValue = typeFilter.value;
-      return allFiles.filter(file => {
-        const bySearch = !q || (file.name || "").toLowerCase().includes(q);
-        const byType = matchesFilter(file, filterValue);
-        return bySearch && byType;
-      });
-    }
+const db = getDatabase(app);
+const DELETE_PASSWORD = "1564";
 
-    function openPdf(file) {
-      pdfTitle.textContent = file.name || "عرض PDF";
-      pdfFrame.src = `https://drive.google.com/file/d/${file.id}/preview`;
-      pdfModal.classList.add("show");
-    }
+// ===== اسم الـ Shortcut كمتغير واحد قابل للتعديل =====
+const SHORTCUT_PDF_NAME = "pdf";
 
-    function closePdf() {
-      pdfFrame.src = "";
-      pdfModal.classList.remove("show");
-    }
+let selectedBrand = "ALL";
+let lastRequestTime = null;
+let selectionMode = false;
+let selectedCustomers = new Set();
+let currentFilteredResults = [];
+let lastRestartMessage = "";
 
-    function renderFiles() {
-      const files = getFilteredFiles();
-      countLabel.textContent = files.length;
+let customersByBrand = { FOREVER:[], CHARACTER:[], ROSELLA:[], FUTURE:[] };
 
-      if (!files.length) {
-        fileListEl.innerHTML = '<div class="empty">ماكو نتائج مطابقة.</div>';
-        return;
-      }
+// ===== مراجع DOM =====
+const previewCustomer  = document.getElementById("previewCustomer");
+const previewBrand     = document.getElementById("previewBrand");
+const overlay          = document.getElementById("searchOverlay");
+const searchInput      = document.getElementById("searchInput");
+const results          = document.getElementById("searchResults");
+const searchBrandTitle = document.getElementById("searchBrandTitle");
+const statusCard       = document.getElementById("statusCard");
+const statusText       = document.getElementById("statusText");
+const statusBar        = document.getElementById("statusBar");
+const statusLog        = document.getElementById("statusLog");
+const statusOverlay    = document.getElementById("statusOverlay");
+const startSelectBtn   = document.getElementById("startSelectBtn");
+const selectionTools   = document.getElementById("selectionTools");
+const selectedCountBox = document.getElementById("selectedCountBox");
+const selectedCount    = document.getElementById("selectedCount");
+const bulkSendBar      = document.getElementById("bulkSendBar");
+const submitBtn        = document.getElementById("submitBtn");
+const bulkCount        = document.getElementById("bulkCount");
+// إصلاح #5: تعريف bulkSendBtn كـ const مرة واحدة
+const bulkSendBtn      = document.getElementById("bulkSendBtn");
 
-      fileListEl.innerHTML = files.map(file => {
-        const fileName = escapeHtml(file.name || "بدون اسم");
-        const modified = file.modifiedTime ? new Date(file.modifiedTime).toLocaleString("ar-IQ") : "غير معروف";
-        const size = file.size ? `${Math.round(Number(file.size) / 1024)} KB` : "—";
-        const checked = selectedIds.has(file.id) ? "checked" : "";
-        const type = typeLabel(file);
-        const webLink = file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`;
-        const downloadLink = file.webContentLink || `https://drive.google.com/uc?export=download&id=${file.id}`;
-        let previewBtn = "";
-        if (isPdf(file)) {
-          previewBtn = `<button class="ghost" onclick="openPdfById('${file.id}')">عرض PDF</button>`;
+previewBrand.textContent = "ALL";
+
+// ===== Sidebar =====
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+window.toggleSidebar = toggleSidebar;
+
+// ===== Brand =====
+function setBrand(brand, btn){
+  selectedBrand = brand;
+  document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  previewBrand.textContent = brand;
+  document.getElementById("customerName").value = "";
+  previewCustomer.textContent = "—";
+  checkSubmitReadyState();
+}
+window.setBrand = setBrand;
+
+function clearForm(){
+  selectedBrand = "";
+  previewCustomer.textContent = "—";
+  previewBrand.textContent = "—";
+  document.getElementById("customerName").value = "";
+  document.querySelectorAll(".brand-btn").forEach(b => b.classList.remove("active"));
+  checkSubmitReadyState();
+}
+window.clearForm = clearForm;
+
+// ===== Loading states =====
+function setSubmitLoading(isLoading){
+  if(!submitBtn) return;
+  submitBtn.disabled = isLoading;
+  submitBtn.textContent = isLoading ? "جاري الإرسال..." : "إرسال الطلب";
+  submitBtn.style.opacity = isLoading ? "0.7" : "1";
+  submitBtn.style.cursor = isLoading ? "not-allowed" : "pointer";
+}
+
+function setBulkSendLoading(isLoading, count=null){
+  if(!bulkSendBtn) return;
+  bulkSendBtn.disabled = isLoading;
+  bulkSendBtn.style.opacity = isLoading ? "0.7" : "1";
+  bulkSendBtn.style.cursor = isLoading ? "not-allowed" : "pointer";
+  if(isLoading){
+    bulkSendBtn.textContent = "جاري الإرسال...";
+  }else{
+    const finalCount = count ?? selectedCustomers.size;
+    bulkSendBtn.innerHTML = 'إرسال المحددين (<span id="bulkCount">'+finalCount+'</span>)';
+  }
+}
+
+// ===== Selection UI =====
+function updateSelectedUI(){
+  const count = selectedCustomers.size;
+  selectedCount.textContent = count;
+  // إعادة استخدام bulkCount الموجود في الـ DOM (قد يكون أُعيد رسمه)
+  const bc = document.getElementById("bulkCount");
+  if(bc) bc.textContent = count;
+  selectedCountBox.style.display = selectionMode ? "block" : "none";
+  bulkSendBar.style.display = selectionMode && count > 0 ? "block" : "none";
+  startSelectBtn.style.display = selectionMode ? "none" : "inline-flex";
+  selectionTools.style.display = selectionMode ? "flex" : "none";
+}
+
+function startSelectionMode(){ selectionMode=true; selectedCustomers.clear(); updateSelectedUI(); renderResults(currentFilteredResults); }
+function endSelectionMode(){ selectionMode=false; selectedCustomers.clear(); updateSelectedUI(); renderResults(currentFilteredResults); }
+function clearSelectedCustomers(){ selectedCustomers.clear(); updateSelectedUI(); renderResults(currentFilteredResults); }
+function selectAllVisible(){ currentFilteredResults.forEach(item=>{ selectedCustomers.add(getCustomerKey(item)); }); updateSelectedUI(); renderResults(currentFilteredResults); }
+
+window.startSelectionMode   = startSelectionMode;
+window.endSelectionMode     = endSelectionMode;
+window.clearSelectedCustomers = clearSelectedCustomers;
+window.selectAllVisible     = selectAllVisible;
+
+// ===== Search helpers =====
+function getCustomersForSearch(){
+  if(selectedBrand !== "ALL"){
+    return [...(customersByBrand[selectedBrand]||[])].map(item=>({id:item.id,name:item.name,brand:selectedBrand}));
+  }
+  let all=[];
+  Object.keys(customersByBrand).forEach(brand=>{
+    (customersByBrand[brand]||[]).forEach(item=>{ all.push({id:item.id,name:item.name,brand}); });
+  });
+  return all;
+}
+
+function getCustomerKey(item){
+  if(typeof item==="number"||typeof item==="string") return String(item);
+  return String(item.id);
+}
+
+function normalizeSearchText(text){
+  return String(text||"").toLowerCase().trim()
+    .replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")
+    .replace(/ؤ/g,"و").replace(/ئ/g,"ي").replace(/\s+/g," ")
+    .replace(/[-_]/g,"").replace(/[^\w\u0600-\u06FF ]/g,"");
+}
+
+function containsAllWords(sourceText, queryText){
+  const source=normalizeSearchText(sourceText);
+  const words=normalizeSearchText(queryText).split(" ").filter(Boolean);
+  if(!words.length) return true;
+  return words.every(w=>source.includes(w));
+}
+
+function scoreCustomerMatch(name, query){
+  const n=normalizeSearchText(name), q=normalizeSearchText(query);
+  if(!q) return 1;
+  const cn=n.replace(/\s/g,""), cq=q.replace(/\s/g,"");
+  let score=0;
+  if(cn===cq) score+=1000; if(n===q) score+=950;
+  if(cn.startsWith(cq)) score+=700; if(n.startsWith(q)) score+=650;
+  if(cn.includes(cq)) score+=500; if(n.includes(q)) score+=450;
+  const words=n.split(" ").filter(Boolean), qWords=q.split(" ").filter(Boolean);
+  qWords.forEach(qw=>words.forEach(w=>{ if(w===qw) score+=120; else if(w.startsWith(qw)) score+=80; else if(w.includes(qw)) score+=40; }));
+  if(qWords.every(qw=>words.some(w=>w.includes(qw)))&&qWords.length>1) score+=300;
+  return score;
+}
+
+// ===== Search overlay =====
+function openSearch(){
+  if(!selectedBrand){ alert("اختر البراند اولاً"); return; }
+  overlay.classList.add("show");
+  searchInput.value="";
+  searchBrandTitle.textContent="البراند المختار: "+selectedBrand;
+  selectionMode=false; selectedCustomers.clear(); updateSelectedUI();
+  currentFilteredResults=[...getCustomersForSearch()].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar"));
+  renderResults(currentFilteredResults);
+  searchInput.focus();
+}
+window.openSearch = openSearch;
+
+function closeSearch(){
+  overlay.classList.remove("show");
+  selectionMode=false; selectedCustomers.clear(); updateSelectedUI();
+}
+window.closeSearch = closeSearch;
+
+searchInput.addEventListener("input",()=>{
+  const text=searchInput.value.trim();
+  const all=getCustomersForSearch();
+  if(!normalizeSearchText(text)){
+    currentFilteredResults=[...all].sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"ar"));
+    renderResults(currentFilteredResults); return;
+  }
+  currentFilteredResults=all
+    .map(item=>{ const src=selectedBrand==="ALL"?(item.name+" "+item.brand):item.name; return {item,src,score:scoreCustomerMatch(src,text)}; })
+    .filter(e=>containsAllWords(e.src,text))
+    .sort((a,b)=>b.score-a.score)
+    .map(e=>e.item);
+  renderResults(currentFilteredResults);
+});
+
+function renderResults(list){
+  results.innerHTML="";
+  if(!list.length){ results.innerHTML='<div class="search-item">ماكو نتائج</div>'; return; }
+  if(list.length>100){
+    const note=document.createElement("div");
+    note.className="search-item"; note.style.fontWeight="800"; note.style.background="#fff8e1";
+    note.innerText="تم عرض أول 100 نتيجة من أصل "+list.length;
+    results.appendChild(note);
+  }
+  list.slice(0,100).forEach(item=>{
+    const name=item.name||"";
+    const itemBrand=item.brand||selectedBrand;
+    const displayName=selectedBrand==="ALL"?(name+" — "+itemBrand):name;
+    const key=getCustomerKey(item);
+
+    const div=document.createElement("div");
+    div.className="search-item"+(selectionMode?" select-mode":"");
+
+    if(selectionMode){
+      const checkbox=document.createElement("input");
+      checkbox.type="checkbox"; checkbox.className="search-checkbox"; checkbox.checked=selectedCustomers.has(key);
+      checkbox.addEventListener("click",e=>e.stopPropagation());
+      checkbox.addEventListener("change",()=>{ selectedCustomers.has(key)?selectedCustomers.delete(key):selectedCustomers.add(key); updateSelectedUI(); });
+      const span=document.createElement("div"); span.className="search-item-name"; span.innerText=displayName;
+      div.appendChild(checkbox); div.appendChild(span);
+      div.onclick=()=>{ selectedCustomers.has(key)?selectedCustomers.delete(key):selectedCustomers.add(key); updateSelectedUI(); renderResults(currentFilteredResults); };
+    }else{
+      div.innerText=displayName;
+      div.onclick=()=>{
+        document.getElementById("customerName").value=name;
+        previewCustomer.textContent=name;
+        if(selectedBrand==="ALL"){
+          selectedBrand=itemBrand; previewBrand.textContent=itemBrand;
+          document.querySelectorAll(".brand-btn").forEach(b=>b.classList.remove("active"));
+          document.querySelectorAll(".brand-btn").forEach(btn=>{ if(btn.textContent.trim().toUpperCase()===itemBrand) btn.classList.add("active"); });
         }
-        return `
-          <div class="item">
-            <input class="check" type="checkbox" ${checked} onchange="toggleSelect('${file.id}', this.checked)" />
-            <div>
-              <div class="title">${fileName}</div>
-              <div class="meta">
-                آخر تعديل: ${modified}<br>
-                الحجم: ${size}
-              </div>
-              <div class="tag">${type}</div>
-            </div>
-            <div class="actions">
-              ${previewBtn}
-              <a class="linkbtn" href="${webLink}" target="_blank" rel="noopener noreferrer">فتح</a>
-              <a class="linkbtn" href="${downloadLink}" target="_blank" rel="noopener noreferrer">تحميل</a>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    window.toggleSelect = function(fileId, checked) {
-      if (checked) selectedIds.add(fileId);
-      else selectedIds.delete(fileId);
-      updateSelectedBox();
-    }
-
-    window.openPdfById = function(fileId) {
-      const file = allFiles.find(f => f.id === fileId);
-      if (file) openPdf(file);
-    }
-
-    function selectAllVisible() {
-      getFilteredFiles().forEach(file => selectedIds.add(file.id));
-      updateSelectedBox();
-      renderFiles();
-    }
-
-    function clearSelection() {
-      selectedIds.clear();
-      updateSelectedBox();
-      renderFiles();
-    }
-
-    async function sendSelectedWhatsApp() {
-      const selectedFiles = allFiles.filter(file => selectedIds.has(file.id));
-
-      if (!selectedFiles.length) {
-        alert("حدد ملف واحد على الأقل");
-        return;
-      }
-
-      const text = selectedFiles.map(file => {
-        const link = file.webViewLink || `https://drive.google.com/file/d/${file.id}/view`;
-        return `📄 ${file.name}
-${link}`;
-      }).join("\n\n");
-
-      try {
-        if (navigator.share) {
-          await navigator.share({
-            title: "ملفات Google Drive",
-            text
-          });
-          return;
-        }
-      } catch (err) {
-        return;
-      }
-
-      window.location.href = "https://wa.me/?text=" + encodeURIComponent(text);
-    }
-
-    async function listFiles() {
-      try {
-        if (FOLDER_ID === "PUT_FOLDER_ID_HERE" || !FOLDER_ID.trim()) {
-          setStatus("لازم تضيف FOLDER_ID داخل الكود أولاً.");
-          return;
-        }
-        setStatus("جاري جلب ملفات الفولدر...");
-        const query = `'${FOLDER_ID}' in parents and trashed = false`;
-        const response = await gapi.client.drive.files.list({
-          q: query,
-          pageSize: 50,
-          fields: "files(id,name,mimeType,modifiedTime,size,webViewLink,webContentLink)",
-          orderBy: "modifiedTime desc"
-        });
-
-        allFiles = response.result.files || [];
-        renderFiles();
-        setStatus(`تم جلب ${allFiles.length} ملف من الفولدر المحدد.`);
-        refreshBtn.disabled = false;
-        logoutBtn.disabled = false;
-        sendWhatsBtn.disabled = false;
-      } catch (err) {
-        console.error(err);
-        setStatus("صار خطأ أثناء جلب الملفات.");
-      }
-    }
-
-    function handleAuthClick() {
-      if (!gapiReady || !gisReady || !tokenClient) {
-        setStatus("Google بعده ما صار جاهز.");
-        return;
-      }
-      const token = gapi.client.getToken();
-      if (token === null) {
-        setStatus("جاري فتح تسجيل الدخول...");
-        tokenClient.requestAccessToken({ prompt: "consent" });
-      } else {
-        listFiles();
-      }
-    }
-
-    function handleLogout() {
-      const token = gapi.client.getToken();
-      if (token) {
-        google.accounts.oauth2.revoke(token.access_token);
-        gapi.client.setToken("");
-      }
-      allFiles = [];
-      selectedIds.clear();
-      updateSelectedBox();
-      fileListEl.innerHTML = '<div class="empty">تم تسجيل الخروج.</div>';
-      refreshBtn.disabled = true;
-      logoutBtn.disabled = true;
-      sendWhatsBtn.disabled = true;
-      setStatus("تم تسجيل الخروج.");
-    }
-
-    function loadGoogleScripts() {
-      setStatus("جاري تحميل مكتبات Google...");
-
-      const s1 = document.createElement("script");
-      s1.src = "https://apis.google.com/js/api.js";
-      s1.onload = () => {
-        gapi.load("client", async () => {
-          try {
-            await gapi.client.init({
-              apiKey: API_KEY,
-              discoveryDocs: [DISCOVERY_DOC]
-            });
-            gapiReady = true;
-            setStatus("تمت تهيئة Google API.");
-            maybeEnableUI();
-          } catch (err) {
-            console.error("gapi init error", err);
-            setStatus("فشل تهيئة Google API.");
-          }
-        });
+        checkSubmitReadyState(); closeSearch();
       };
-      s1.onerror = () => setStatus("فشل تحميل gapi.js");
-      document.body.appendChild(s1);
-
-      const s2 = document.createElement("script");
-      s2.src = "https://accounts.google.com/gsi/client";
-      s2.onload = () => {
-        try {
-          tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: SCOPES,
-            callback: async (resp) => {
-              if (resp.error) {
-                console.error("oauth error", resp);
-                setStatus("صار خطأ بعد تسجيل الدخول.");
-                return;
-              }
-              setStatus("تم تسجيل الدخول بنجاح.");
-              await listFiles();
-            }
-          });
-          gisReady = true;
-          setStatus("تمت تهيئة تسجيل الدخول.");
-          maybeEnableUI();
-        } catch (err) {
-          console.error("gis init error", err);
-          setStatus("فشل تهيئة Google Sign-In.");
-        }
-      };
-      s2.onerror = () => setStatus("فشل تحميل Google Sign-In");
-      document.body.appendChild(s2);
     }
+    results.appendChild(div);
+  });
+}
 
-    loginBtn.addEventListener("click", handleAuthClick);
-    refreshBtn.addEventListener("click", listFiles);
-    logoutBtn.addEventListener("click", handleLogout);
-    sendWhatsBtn.addEventListener("click", sendSelectedWhatsApp);
-    searchInput.addEventListener("input", renderFiles);
-    typeFilter.addEventListener("change", renderFiles);
-    selectAllBtn.addEventListener("click", selectAllVisible);
-    clearSelectBtn.addEventListener("click", clearSelection);
-    closePdfBtn.addEventListener("click", closePdf);
-    pdfModal.addEventListener("click", (e) => {
-      if (e.target === pdfModal) closePdf();
+// ===== Status card helpers =====
+function showStatusCard(){ clearTimeout(window.__statusDoneHideTimer); statusOverlay.classList.add("show"); statusCard.style.display="block"; statusCard.classList.remove("success-anim"); const icon=document.getElementById("successIcon"); if(icon) icon.style.display="none"; }
+function hideStatusCard(){ statusOverlay.classList.remove("show"); }
+
+function prepareStatusCard(mode="processing"){
+  statusLog.innerHTML=""; statusBar.style.width="0%"; statusText.style.color="";
+  statusCard.classList.remove("processing","done","error");
+  if(mode==="processing"){ statusCard.classList.add("processing"); statusText.style.color="#0d6efd"; }
+  else if(mode==="done"){ statusCard.classList.add("done"); statusText.style.color="#15803d"; }
+  else if(mode==="error"){ statusCard.classList.add("error"); statusText.style.color="#dc2626"; }
+}
+
+// إصلاح #7: دالة واحدة لإدارة الـ log بدل تكرارها في 4 أماكن
+const MAX_LOGS = 4;
+function trimStatusLog(){ while(statusLog.children.length>=MAX_LOGS){ statusLog.removeChild(statusLog.firstChild); } }
+
+function addStatusLog(message){
+  if(!message) return;
+  let prefix="• ", color="#444", rowClass="", bg="#ffffff", borderColor="#e6e9ef";
+  if(message.includes("تم")){ prefix="✅ "; color="#15803d"; rowClass="done"; bg="#ecfdf3"; borderColor="#bbf7d0"; }
+  else if(message.includes("جاري")){ prefix="🔄 "; color="#0d6efd"; rowClass="running"; bg="#eef4ff"; borderColor="#cfe0ff"; }
+  else if(message.includes("فشل")||message.includes("خطأ")){ prefix="❌ "; color="#dc2626"; rowClass="error"; bg="#fef2f2"; borderColor="#fecaca"; }
+  trimStatusLog(); // استخدام الدالة المشتركة
+  const row=document.createElement("div");
+  row.className=rowClass;
+  row.innerHTML=`<span style="font-size:16px">${prefix}</span><span>${message}</span>`;
+  row.style.color=color; row.style.background=bg; row.style.borderColor=borderColor;
+  statusLog.appendChild(row);
+}
+
+function updateStatus(status, current=null, total=null){
+  const counter=current!==null&&total!==null?` (${current} / ${total})`:"";
+  statusCard.classList.remove("processing","done","error");
+  if(status==="sending"){
+    statusCard.classList.add("processing"); statusText.style.color="#0d6efd";
+    statusText.textContent="جاري إرسال الطلب..."+counter; statusBar.style.width="20%"; addStatusLog("جاري إرسال الطلب"+counter);
+  }else if(status==="new"){
+    statusCard.classList.add("processing"); statusText.style.color="#0d6efd";
+    statusText.textContent="تم إرسال الطلب، بانتظار المعالجة..."+counter; statusBar.style.width="50%"; addStatusLog("تم إرسال الطلب، بانتظار المعالجة"+counter);
+  }else if(status==="processing"){
+    statusCard.classList.add("processing"); statusText.style.color="#0d6efd";
+    statusText.textContent="الطلب قيد المعالجة..."+counter; statusBar.style.width="70%"; addStatusLog("الطلب قيد المعالجة"+counter);
+  }else if(status==="done"){
+    statusCard.classList.add("done","success-anim");
+    statusText.style.color="#15803d"; statusText.textContent="تم إنجاز الطلب بنجاح"+counter; statusBar.style.width="100%";
+    const icon=document.getElementById("successIcon"); if(icon) icon.style.display="block";
+    playSuccessSound(); launchSuccessCelebration(); addStatusLog("تم إنجاز الطلب بنجاح"+counter);
+    clearTimeout(window.__statusDoneHideTimer);
+    window.__statusDoneHideTimer=setTimeout(()=>{ hideStatusCard(); statusBar.style.width="0%"; statusLog.innerHTML=""; statusCard.classList.remove("processing","done","error","success-anim"); statusText.textContent="جاري إرسال الطلب..."; statusText.style.color=""; if(icon) icon.style.display="none"; },2500);
+    setTimeout(()=>{ statusCard.classList.remove("success-anim"); const ic=document.getElementById("successIcon"); if(ic) ic.style.display="none"; },1200);
+  }else if(status==="error"){
+    statusCard.classList.add("error"); statusText.style.color="#dc2626";
+    if(!statusText.textContent||statusText.textContent.includes("جاري")) statusText.textContent="صار خطأ أثناء معالجة الطلب"+counter;
+    statusBar.style.width="100%"; addStatusLog("خطأ أثناء معالجة الطلب"+counter);
+  }
+}
+
+function resetStatusCard(delay=3000){
+  setTimeout(()=>{
+    hideStatusCard(); statusBar.style.width="0%"; statusText.textContent="جاري إرسال الطلب...";
+    // إصلاح #7: استخدام trimStatusLog بدل تكرار الكود
+    trimStatusLog();
+    statusCard.classList.remove("processing","done","error"); statusText.style.color="";
+  },delay);
+}
+
+// ===== إصلاح #2: waitForRequestCompletion بدون double-reject =====
+// متغير لتتبع آخر status ظهر — يمنع تكرار نفس السطر في اللوق
+let lastShownStatus = "";
+
+function waitForRequestCompletion(requestTime, current=null, total=null, timeoutMs=180000){
+  lastShownStatus = ""; // نصفّر عند كل طلب جديد
+  return new Promise((resolve, reject)=>{
+    let settled=false;
+    let unsubscribe=null;
+    let timeoutId=null;
+
+    function finish(fn){ if(settled) return; settled=true; clearTimeout(timeoutId); try{ unsubscribe && unsubscribe(); }catch{} fn(); }
+
+    const latestRef=ref(db,"requests/latest");
+    unsubscribe=onValue(latestRef,(snapshot)=>{
+      if(settled||!snapshot.exists()) return;
+      const data=snapshot.val();
+      if(!data||data.time!==requestTime) return;
+
+      const st  = data.status;
+      const msg = data.message || "";
+
+      // المفتاح = status + message — يسمح بسطر جديد لكل message مختلفة
+      const stateKey = st + "|" + msg;
+      if(stateKey === lastShownStatus && st !== "done" && st !== "error") return;
+      lastShownStatus = stateKey;
+
+      const counter = current !== null && total !== null ? ` (${current} / ${total})` : "";
+
+      if(st === "new"){
+        updateStatus("new", current, total);
+      }
+      else if(st === "processing"){
+        statusCard.classList.remove("processing","done","error");
+        statusCard.classList.add("processing");
+        statusText.style.color = "#0d6efd";
+        statusText.textContent = (msg || "الطلب قيد المعالجة") + counter;
+        statusBar.style.width = "70%";
+        // عرض الـ message الحقيقية القادمة من AHK
+        addStatusLog((msg || "الطلب قيد المعالجة") + counter);
+      }
+      else if(st === "done"){
+        finish(()=>{ updateStatus("done", current, total); resolve("done"); });
+      }
+      else if(st === "error"){
+        finish(()=>{
+          if(msg){ statusText.textContent = msg; addStatusLog(msg); }
+          else updateStatus("error", current, total);
+          statusBar.style.width = "100%";
+          reject(new Error(msg || "error"));
+        });
+      }
     });
 
-    sendWhatsBtn.disabled = true;
-    updateSelectedBox();
-    loadGoogleScripts();
-  </script>
+    timeoutId=setTimeout(()=>{ finish(()=>reject(new Error("timeout"))); },timeoutMs);
+  });
+}
+
+// ===== Firebase helpers =====
+async function sendRequestToFirebase(message, customer, brand){
+  const requestTime=Date.now();
+  await set(ref(db,"requests/latest"),{ text:message, customer, brand, status:"new", time:requestTime });
+  return requestTime;
+}
+async function saveCustomersToFirebase(data){ await set(ref(db,"customersByBrand"),data); }
+async function loadCustomersFromFirebase(){ const snap=await get(child(ref(db),"customersByBrand")); return snap.exists()?snap.val():null; }
+async function deleteCustomersFromFirebase(){ await remove(ref(db,"customersByBrand")); }
+
+async function loadFirebaseCustomers(){
+  try{
+    const firebaseData=await loadCustomersFromFirebase();
+    if(firebaseData&&typeof firebaseData==="object"){
+      customersByBrand={
+        FOREVER:  Array.isArray(firebaseData.FOREVER)   ? firebaseData.FOREVER   : [],
+        CHARACTER:Array.isArray(firebaseData.CHARACTER)  ? firebaseData.CHARACTER  : [],
+        ROSELLA:  Array.isArray(firebaseData.ROSELLA)   ? firebaseData.ROSELLA   : [],
+        FUTURE:   Array.isArray(firebaseData.FUTURE)    ? firebaseData.FUTURE    : []
+      };
+      Object.keys(customersByBrand).forEach(brand=>{
+        customersByBrand[brand]=customersByBrand[brand].map(item=>typeof item==="string"?{id:Date.now()+Math.random(),name:item}:item);
+      });
+    }else{
+      customersByBrand={FOREVER:[],CHARACTER:[],ROSELLA:[],FUTURE:[]};
+    }
+  }catch(error){
+    console.warn("تعذر تحميل الزباين من Firebase",error);
+    customersByBrand={FOREVER:[],CHARACTER:[],ROSELLA:[],FUTURE:[]};
+    // إصلاح #12: إخبار المستخدم بعدم تحميل البيانات
+    setTimeout(()=>alert("تنبيه: لم يتم تحميل بيانات الزباين. تحقق من الاتصال بالإنترنت ثم أعد تحميل الصفحة."),500);
+  }
+}
+
+// ===== إرسال السنة =====
+async function sendYearToFirebase(){
+  const year=document.getElementById("yearSelect").value;
+  try{
+    showStatusCard(); prepareStatusCard("processing"); statusText.textContent="جاري إرسال السنة..."; statusBar.style.width="20%"; addStatusLog("جاري إرسال السنة");
+    await set(ref(db,"systemCommands/changeYear"),{ year, status:"new", time:Date.now() });
+    waitForYearChange();
+  }catch(error){
+    showStatusCard(); prepareStatusCard("error"); statusText.textContent="صار خطأ بإرسال السنة"; statusBar.style.width="100%"; addStatusLog("خطأ في إرسال السنة");
+    alert("صار خطأ بإرسال السنة");
+  }
+}
+window.sendYearToFirebase = sendYearToFirebase;
+
+// ===== إعادة تشغيل البيان =====
+async function restartBayanFromWeb(){
+  try{
+    showStatusCard(); statusCard.classList.remove("processing","done","error"); statusCard.classList.add("processing");
+    statusText.textContent="جاري إرسال أمر إعادة التشغيل..."; statusText.style.color="#0d6efd"; lastRestartMessage=""; statusBar.style.width="8%";
+    addStatusLog("جاري إرسال أمر إعادة التشغيل");
+    await set(ref(db,"systemCommands/restartBayan"),{ action:"restart", time:Date.now(), status:"new" });
+    waitForRestartBayan();
+  }catch(error){
+    statusCard.classList.remove("processing","done"); statusCard.classList.add("error");
+    statusText.textContent="صار خطأ بإرسال أمر إعادة التشغيل"; statusText.style.color="#dc2626"; statusBar.style.width="100%"; addStatusLog("خطأ في إرسال أمر إعادة التشغيل");
+    alert("صار خطأ بإرسال أمر إعادة التشغيل");
+  }
+}
+window.restartBayanFromWeb = restartBayanFromWeb;
+
+// ===== حذف البيانات =====
+async function deleteSavedData(){
+  const password=prompt("ادخل الباسورد لحذف البيانات");
+  if(password===null) return;
+  if(password!==DELETE_PASSWORD){ alert("الباسورد غير صحيح"); return; }
+  try{ await deleteCustomersFromFirebase(); }catch(error){ console.warn("تعذر حذف بيانات Firebase",error); }
+  customersByBrand={FOREVER:[],CHARACTER:[],ROSELLA:[],FUTURE:[]};
+  clearForm(); closeSearch(); results.innerHTML="";
+  alert("تم حذف البيانات السحابية بنجاح");
+}
+window.deleteSavedData = deleteSavedData;
+
+// ===== إصلاح #4: حذف الملفات عبر Firebase SDK بدل fetch مباشر =====
+async function deleteAllFiles(){
+  const ok=confirm("هل تريد حذف كل ملفات PDF؟");
+  if(!ok) return;
+  try{
+    await set(ref(db,"systemCommands/deleteFiles"),{ action:true, time:Date.now() });
+    alert("تم إرسال أمر الحذف");
+  }catch(err){
+    alert("فشل إرسال أمر الحذف");
+    console.error(err);
+  }
+}
+window.deleteAllFiles = deleteAllFiles;
+
+// ===== استيراد Excel =====
+document.getElementById("excelFile").addEventListener("change",function(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async function(evt){
+    try{
+      const data=new Uint8Array(evt.target.result);
+      const workbook=XLSX.read(data,{type:"array"});
+      const sheet=workbook.Sheets[workbook.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(sheet);
+      if(!rows.length){ alert("فشل الاستيراد: ملف الإكسل فارغ"); return; }
+      const firstRow=rows[0];
+      const hasName=Object.prototype.hasOwnProperty.call(firstRow,"الاسم");
+      const hasBrand=Object.prototype.hasOwnProperty.call(firstRow,"البراند")||Object.prototype.hasOwnProperty.call(firstRow,"براند");
+      if(!hasName||!hasBrand){ alert("فشل الاستيراد: الملف يحتاج عمود (الاسم) وعمود (البراند)"); return; }
+
+      let importedCount=0, skippedCount=0, errorMessages=[];
+      const updated={ FOREVER:[...customersByBrand.FOREVER], CHARACTER:[...customersByBrand.CHARACTER], ROSELLA:[...customersByBrand.ROSELLA], FUTURE:[...customersByBrand.FUTURE] };
+
+      // إصلاح #6: حساب maxId من البيانات الفعلية المُحمَّلة من Firebase
+      let maxId=0;
+      Object.values(updated).forEach(arr=>arr.forEach(item=>{ const n=Number(item.id||0); if(n>maxId) maxId=n; }));
+
+      rows.forEach((row,index)=>{
+        const rowNumber=index+2;
+        const name=String(row["الاسم"]||"").trim();
+        let brand=String(row["البراند"]||row["براند"]||"").trim().toUpperCase();
+        if(!name){ skippedCount++; errorMessages.push("السطر "+rowNumber+": الاسم فارغ"); return; }
+        if(!brand){ skippedCount++; errorMessages.push("السطر "+rowNumber+": البراند فارغ"); return; }
+        if(/ROZLA|ROSELLA|ROSLLA|روزلا/.test(brand)) brand="ROSELLA";
+        else if(/FOREVER|فور/.test(brand)) brand="FOREVER";
+        else if(/CHARACTER|كاركتر/.test(brand)) brand="CHARACTER";
+        else if(/FUTURE|GENERAL|فيوتشر|جنرال/.test(brand)) brand="FUTURE";
+        else{ skippedCount++; errorMessages.push("السطر "+rowNumber+": براند غير معروف → "+brand); return; }
+        if(updated[brand].some(item=>String(item.name).trim()===name)){ skippedCount++; errorMessages.push("السطر "+rowNumber+": الاسم مكرر → "+name); return; }
+        maxId++; updated[brand].push({id:maxId,name});
+        importedCount++;
+      });
+
+      if(!importedCount){ let details=errorMessages.length?"\n\nالأسباب:\n- "+errorMessages.join("\n- "):""; alert("فشل الاستيراد: ما تم استيراد أي اسم جديد"+details); return; }
+      customersByBrand=updated;
+      await saveCustomersToFirebase(customersByBrand);
+      let msg="تم الاستيراد السحابي بنجاح. عدد الأسماء الجديدة: "+importedCount;
+      if(skippedCount) msg+="\nالأسطر المهملة: "+skippedCount;
+      if(errorMessages.length) msg+="\n\nتفاصيل الأسطر المهملة:\n- "+errorMessages.join("\n- ");
+      alert(msg);
+    }catch(error){ alert("فشل الاستيراد: "+error.message); }
+    finally{ e.target.value=""; }
+  };
+  reader.onerror=()=>{ alert("فشل الاستيراد: تعذر قراءة الملف"); e.target.value=""; };
+  reader.readAsArrayBuffer(file);
+});
+
+// ===== إصلاح #1: إرسال فردي مع keepScreenAwake =====
+async function submitRequest(){
+  const customer=document.getElementById("customerName").value.trim();
+  if(!customer){ alert("اختر الزبون"); return; }
+  if(!selectedBrand){ alert("اختر البراند"); return; }
+  const message=customer+" | "+selectedBrand;
+  keepScreenAwake(); // إصلاح #1: تشغيل قبل بدء الانتظار
+  try{
+    setSubmitLoading(true);
+    showStatusCard(); prepareStatusCard("processing"); updateStatus("sending");
+    lastRequestTime=await sendRequestToFirebase(message,customer,selectedBrand);
+    await waitForRequestCompletion(lastRequestTime);
+    resetStatusCard(3000);
+  }catch(error){
+    resetStatusCard(2500);
+    alert("صار خطأ بالإرسال");
+  }finally{
+    allowScreenSleep();
+    setSubmitLoading(false);
+  }
+}
+window.submitRequest = submitRequest;
+
+// ===== إرسال متعدد =====
+async function sendSelectedCustomers(){
+  if(selectedCustomers.size===0){ alert("ماكو أسماء محددة"); return; }
+  keepScreenAwake();
+  setBulkSendLoading(true); setSubmitLoading(true);
+  const selectedIds=Array.from(selectedCustomers);
+  const total=selectedIds.length;
+  closeSearch();
+  try{
+    for(let i=0;i<total;i++){
+      const id=String(selectedIds[i]); const current=i+1;
+      let foundItem=null, foundBrand="";
+      Object.keys(customersByBrand).forEach(brand=>{ const item=(customersByBrand[brand]||[]).find(x=>String(x.id)===id); if(item&&!foundItem){ foundItem=item; foundBrand=brand; } });
+      if(!foundItem){ alert("ما لكيت السجل المحدد: "+id); return; }
+      const customer=foundItem.name, brand=foundBrand;
+      try{
+        document.getElementById("customerName").value=customer; previewCustomer.textContent=customer; previewBrand.textContent=brand;
+        showStatusCard(); prepareStatusCard("processing"); updateStatus("sending",current,total);
+        const requestTime=await sendRequestToFirebase(customer+" | "+brand,customer,brand);
+        await waitForRequestCompletion(requestTime,current,total);
+        if(current===total) resetStatusCard(3000);
+        await new Promise(r=>setTimeout(r,1000));
+      }catch(error){
+        updateStatus("error",current,total); resetStatusCard(2500);
+        alert("توقف الإرسال عند الزبون: "+customer+" / "+brand); return;
+      }
+    }
+  }finally{
+    allowScreenSleep();
+    setBulkSendLoading(false,selectedCustomers.size); setSubmitLoading(false);
+  }
+}
+window.sendSelectedCustomers = sendSelectedCustomers;
+
+// ===== Watchers =====
+function waitForYearChange(){
+  const yearRef=ref(db,"systemCommands/changeYear"); let lastMsg="";
+  const unsub=onValue(yearRef,(snap)=>{
+    if(!snap.exists()) return;
+    const data=snap.val(); if(!data) return;
+    statusCard.classList.remove("processing","done","error");
+    if(data.status==="new"){ statusCard.classList.add("processing"); statusText.style.color="#0d6efd"; statusText.textContent="تم إرسال السنة، بانتظار التنفيذ..."; statusBar.style.width="35%"; const m="تم إرسال السنة، بانتظار التنفيذ"; if(lastMsg!==m){ addStatusLog(m); lastMsg=m; } }
+    else if(data.status==="processing"){ statusCard.classList.add("processing"); statusText.style.color="#0d6efd"; statusText.textContent="جاري تغيير السنة..."; statusBar.style.width="70%"; const m="جاري تغيير السنة"; if(lastMsg!==m){ addStatusLog(m); lastMsg=m; } }
+    else if(data.status==="done"){ statusCard.classList.add("done"); statusText.style.color="#15803d"; statusText.textContent="تم تغيير السنة بنجاح"; playSuccessSound(); launchSuccessCelebration(); statusBar.style.width="100%"; const m="تم تغيير السنة بنجاح"; if(lastMsg!==m){ addStatusLog(m); lastMsg=m; } setTimeout(()=>{ hideStatusCard(); statusBar.style.width="0%"; statusLog.innerHTML=""; statusCard.classList.remove("processing","done","error"); statusText.style.color=""; },3000); unsub(); }
+    else if(data.status==="error"){ statusCard.classList.add("error"); statusText.style.color="#dc2626"; statusText.textContent=data.message||"صار خطأ أثناء تغيير السنة"; statusBar.style.width="100%"; const m=data.message||"خطأ أثناء تغيير السنة"; if(lastMsg!==m){ addStatusLog(m); lastMsg=m; } unsub(); }
+  });
+}
+
+function waitForRestartBayan(){
+  const restartRef=ref(db,"systemCommands/restartBayan");
+  const unsub=onValue(restartRef,(snap)=>{
+    if(!snap.exists()) return;
+    const data=snap.val(); if(!data) return;
+    if(data.message&&data.message!==lastRestartMessage){ addStatusLog(data.message); lastRestartMessage=data.message; }
+    statusCard.classList.remove("processing","done","error");
+    if(data.status==="new"){ statusCard.classList.add("processing"); statusText.textContent="تم بدء إعادة التشغيل..."; statusText.style.color="#0d6efd"; statusBar.style.width="12%"; }
+    else if(data.status==="processing"){
+      statusCard.classList.add("processing"); statusText.textContent="جاري تنفيذ إعادة التشغيل..."; statusText.style.color="#0d6efd";
+      if(data.message){ if(/فور افر|فورافر|FOREVER/.test(data.message)) statusBar.style.width="33%"; else if(/كاركتر|CHARACTER/.test(data.message)) statusBar.style.width="66%"; else if(/روزلا|ROSELLA/.test(data.message)) statusBar.style.width="90%"; else statusBar.style.width="20%"; }else statusBar.style.width="20%";
+    }
+    else if(data.status==="done"){ statusCard.classList.add("done"); statusText.textContent="اكتملت إعادة التشغيل"; playSuccessSound(); launchSuccessCelebration(); statusText.style.color="#15803d"; statusBar.style.width="100%"; addStatusLog("تمت إعادة تشغيل البيان بالكامل"); setTimeout(()=>{ hideStatusCard(); statusBar.style.width="0%"; trimStatusLog(); lastRestartMessage=""; statusCard.classList.remove("processing","done","error"); statusText.style.color=""; },3000); unsub(); }
+    else if(data.status==="error"){ statusCard.classList.add("error"); statusText.textContent=data.message||"صار خطأ أثناء إعادة التشغيل"; statusText.style.color="#dc2626"; statusBar.style.width="100%"; if(data.message&&data.message!==lastRestartMessage){ addStatusLog(data.message); lastRestartMessage=data.message; } unsub(); }
+  });
+}
+
+// ===== صوت النجاح =====
+let successAudioCtx=null;
+function unlockSuccessAudio(){ try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; if(!successAudioCtx) successAudioCtx=new AC(); if(successAudioCtx.state==="suspended") successAudioCtx.resume(); const o=successAudioCtx.createOscillator(),g=successAudioCtx.createGain(); g.gain.setValueAtTime(0.0001,successAudioCtx.currentTime); o.connect(g); g.connect(successAudioCtx.destination); o.start(successAudioCtx.currentTime); o.stop(successAudioCtx.currentTime+0.01); }catch{} }
+document.addEventListener("click",unlockSuccessAudio,{passive:true});
+document.addEventListener("touchstart",unlockSuccessAudio,{passive:true});
+function playSuccessSound(){ try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; if(!successAudioCtx) successAudioCtx=new AC(); if(successAudioCtx.state==="suspended") successAudioCtx.resume(); const now=successAudioCtx.currentTime,o1=successAudioCtx.createOscillator(),o2=successAudioCtx.createOscillator(),g=successAudioCtx.createGain(); o1.type="sine"; o2.type="sine"; o1.frequency.setValueAtTime(740,now); o2.frequency.setValueAtTime(988,now+0.08); g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.02); g.gain.exponentialRampToValueAtTime(0.0001,now+0.28); o1.connect(g); o2.connect(g); g.connect(successAudioCtx.destination); o1.start(now); o2.start(now+0.08); o1.stop(now+0.22); o2.stop(now+0.28); }catch{} }
+
+// ===== Confetti =====
+function launchSuccessCelebration(){
+  const overlayEl=document.getElementById("statusOverlay"),layer=document.getElementById("confettiLayer"); if(!layer) return;
+  overlayEl.classList.add("success-celebration"); layer.innerHTML=""; layer.classList.add("show");
+  const colors=["#22c55e","#0d6efd","#f59e0b","#ef4444","#a855f7","#14b8a6"];
+  const shapes=["shape-circle","shape-strip",""];
+  for(let i=0;i<34;i++){
+    const p=document.createElement("div"); p.className="confetti-piece "+shapes[Math.floor(Math.random()*shapes.length)];
+    p.style.left=Math.random()*100+"vw"; p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.transform="rotate("+(Math.random()*360)+"deg)";
+    p.style.animationDuration=(2.8+Math.random()*1.6)+"s, "+(1.2+Math.random()*0.8)+"s";
+    p.style.animationDelay=(Math.random()*0.25)+"s, "+(Math.random()*0.25)+"s"; p.style.opacity="1";
+    layer.appendChild(p);
+  }
+  setTimeout(()=>{ layer.classList.remove("show"); layer.innerHTML=""; overlayEl.classList.remove("success-celebration"); },4200);
+}
+
+// ===== Screen wake lock =====
+function keepScreenAwake(){ const v=document.getElementById("keepAwakeVideo"); if(!v) return; const p=v.play(); if(p&&typeof p.catch==="function") p.catch(()=>{}); }
+function allowScreenSleep(){ const v=document.getElementById("keepAwakeVideo"); if(!v) return; try{ v.pause(); v.currentTime=0; }catch{} }
+
+// ===== Submit ready state =====
+function checkSubmitReadyState(){
+  const customer=document.getElementById("customerName").value.trim();
+  const isReady=!!(customer&&selectedBrand);
+  const btn=document.getElementById("submitBtn"); if(!btn) return;
+  isReady?btn.classList.add("excel-ready"):btn.classList.remove("excel-ready");
+}
+
+// ===== Pages =====
+// إصلاح #8: اسم الـ Shortcut من متغير SHORTCUT_PDF_NAME
+function openShortcutPDF(){ window.location.href="shortcuts://run-shortcut?name="+encodeURIComponent(SHORTCUT_PDF_NAME); }
+window.openShortcutPDF = openShortcutPDF;
+
+function backToMainPage(){ document.getElementById("pageFiles").classList.remove("active"); document.getElementById("pageMain").classList.add("active"); }
+window.backToMainPage = backToMainPage;
+
+function openFilesPickerPage(){ document.getElementById("filesPageInput").click(); }
+function openFolderPickerPage(){ document.getElementById("folderPageInput").click(); }
+window.openFilesPickerPage = openFilesPickerPage;
+window.openFolderPickerPage = openFolderPickerPage;
+
+// ===== Files page =====
+let pickedFilesPage=[], pickedFilesSelected=new Set();
+
+function normalizePickedFiles(files){ pickedFilesSelected.clear(); pickedFilesPage=Array.from(files||[]).map((file,index)=>({ id:String(Date.now())+"_"+index+"_"+index, name:file.webkitRelativePath||file.name, size:file.size||0, nativeFile:file })); renderPickedFilesPage(); }
+function formatFilesPageSize(bytes){ if(bytes<1024) return bytes+" B"; if(bytes<1048576) return (bytes/1024).toFixed(1)+" KB"; if(bytes<1073741824) return (bytes/1048576).toFixed(1)+" MB"; return (bytes/1073741824).toFixed(1)+" GB"; }
+function detectFilesPageType(name){ const l=String(name||"").toLowerCase(); if(l.endsWith(".pdf")) return "PDF"; if(/\.(xlsx|xls|csv)$/.test(l)) return "Excel"; if(/\.(doc|docx)$/.test(l)) return "Word"; if(/\.(jpg|jpeg|png|webp)$/.test(l)) return "صورة"; return "ملف"; }
+function getFilesPageIcon(t){ return t==="PDF"?"bi-file-earmark-pdf-fill":t==="Excel"?"bi-file-earmark-excel-fill":t==="Word"?"bi-file-earmark-word-fill":t==="صورة"?"bi-file-earmark-image-fill":"bi-file-earmark-fill"; }
+function getFilesPageColor(t){ return t==="PDF"?"linear-gradient(135deg,#ef4444,#fb7185)":t==="Excel"?"linear-gradient(135deg,#16a34a,#22c55e)":t==="Word"?"linear-gradient(135deg,#2563eb,#60a5fa)":t==="صورة"?"linear-gradient(135deg,#7c3aed,#a78bfa)":"linear-gradient(135deg,#475569,#94a3b8)"; }
+
+function updatePickedFilesButton(){ const btn=document.getElementById("sendPickedFilesBtn"); if(!btn) return; const count=pickedFilesSelected.size; btn.disabled=!count; btn.textContent=count?`إرسال المحدد (${count})`:"إرسال المحدد"; }
+
+// إصلاح #11: استخدام data-id بدل onclick strings لتفادي مشاكل الأحرف الخاصة
+function renderPickedFilesPage(){
+  const wrap=document.getElementById("filesPageList"); if(!wrap) return;
+  if(!pickedFilesPage.length){ wrap.className="file-empty"; wrap.innerHTML="ماكو ملفات مختارة حالياً"; updatePickedFilesButton(); return; }
+  wrap.className="";
+  wrap.innerHTML=pickedFilesPage.map((file,idx)=>{
+    const checked=pickedFilesSelected.has(file.id)?"checked":"";
+    const type=detectFilesPageType(file.name);
+    const icon=getFilesPageIcon(type); const color=getFilesPageColor(type);
+    return `<div class="file-row-card" data-idx="${idx}">
+      <input class="file-row-check" type="checkbox" ${checked} data-idx="${idx}">
+      <div class="file-row-icon" style="background:${color};"><i class="bi ${icon}"></i></div>
+      <div class="file-row-info">
+        <div class="file-row-name">${escapeHtml(file.name)}</div>
+        <div class="file-row-meta">${formatFilesPageSize(file.size)} • ${type}</div>
+      </div>
+    </div>`;
+  }).join("");
+  // ربط الأحداث عبر JS بدل onclick inline
+  wrap.querySelectorAll(".file-row-card").forEach(card=>{
+    const idx=Number(card.dataset.idx);
+    const file=pickedFilesPage[idx]; if(!file) return;
+    card.addEventListener("click",()=>togglePickedFile(file.id));
+    card.querySelector(".file-row-check").addEventListener("click",e=>{ e.stopPropagation(); togglePickedFile(file.id); });
+  });
+  updatePickedFilesButton();
+}
+
+// إصلاح #11: دالة escape للحماية من XSS
+function escapeHtml(str){ return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+
+function togglePickedFile(id){ pickedFilesSelected.has(id)?pickedFilesSelected.delete(id):pickedFilesSelected.add(id); renderPickedFilesPage(); }
+function selectAllPickedFiles(){ pickedFilesPage.forEach(f=>pickedFilesSelected.add(f.id)); renderPickedFilesPage(); }
+function clearPickedSelection(){ pickedFilesSelected.clear(); renderPickedFilesPage(); }
+function clearPickedFiles(){ pickedFilesSelected.clear(); pickedFilesPage=[]; const inp=document.getElementById("filesPageInput"); if(inp) inp.value=""; renderPickedFilesPage(); }
+
+window.togglePickedFile    = togglePickedFile;
+window.selectAllPickedFiles= selectAllPickedFiles;
+window.clearPickedSelection= clearPickedSelection;
+window.clearPickedFiles    = clearPickedFiles;
+
+async function sendPickedFiles(){
+  const selected=pickedFilesPage.filter(f=>pickedFilesSelected.has(f.id)).map(x=>x.nativeFile);
+  if(!selected.length){ alert("حدد ملف واحد على الأقل"); return; }
+  try{
+    if(navigator.canShare&&navigator.canShare({files:selected})){ await navigator.share({files:selected,title:"مشاركة الملفات",text:"الملفات المحددة"}); }
+    else{ alert("المشاركة المباشرة غير مدعومة هنا"); }
+  }catch(error){ if(error&&error.name!=="AbortError") alert("صار خطأ بالمشاركة"); }
+}
+window.sendPickedFiles = sendPickedFiles;
+
+document.getElementById("filesPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
+document.getElementById("folderPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
+
+// ===== التهيئة =====
+await loadFirebaseCustomers();
+</script>
+
 </body>
 </html>

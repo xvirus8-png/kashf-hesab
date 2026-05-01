@@ -356,7 +356,19 @@ html, body{
 
   <div id="searchOverlay">
     <div class="search-brand-box" id="searchBrandTitle">البراند: —</div>
+    
+    
     <div class="search-top">
+  <input type="text" id="searchInput" placeholder="ابحث عن اسم الزبون">
+  
+  <button type="button" class="btn btn-secondary" style="flex:0 0 auto;padding:12px 14px" onclick="startVoiceSearch()">
+    🎤
+  </button>
+
+  <button class="btn btn-secondary" style="flex:0 0 auto;padding:12px 16px" onclick="closeSearch()">إلغاء</button>
+</div>
+    
+    
       <input type="text" id="searchInput" placeholder="ابحث عن اسم الزبون">
       <button class="btn btn-secondary" style="flex:0 0 auto;padding:12px 16px" onclick="closeSearch()">إلغاء</button>
     </div>
@@ -1150,7 +1162,39 @@ window.sendPickedFiles = sendPickedFiles;
 
 document.getElementById("filesPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
 document.getElementById("folderPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
+function startVoiceSearch(){
+  if(!('webkitSpeechRecognition' in window)){
+    alert("المتصفح ما يدعم البحث الصوتي");
+    return;
+  }
 
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "ar-IQ"; // عربي عراقي
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.start();
+
+  recognition.onstart = () => {
+    searchInput.placeholder = "🎤 احچي...";
+  };
+
+  recognition.onresult = (event) => {
+    const text = event.results[0][0].transcript;
+    searchInput.value = text;
+    searchInput.dispatchEvent(new Event("input")); // يشغل الفلترة
+  };
+
+  recognition.onerror = () => {
+    alert("صار خطأ بالمايك");
+  };
+
+  recognition.onend = () => {
+    searchInput.placeholder = "ابحث عن اسم الزبون";
+  };
+}
+
+window.startVoiceSearch = startVoiceSearch;
 // ===== التهيئة =====
 await loadFirebaseCustomers();
 </script>

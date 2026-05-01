@@ -243,6 +243,19 @@ html, body{
   height:100%;
   overflow:hidden;
 }
+
+#voiceBtn.recording{
+  background:#ef4444 !important;
+  color:#fff !important;
+  animation:voicePulse 1s infinite;
+}
+
+@keyframes voicePulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.12)}
+  100%{transform:scale(1)}
+}
+
 </style>
 
 </head>
@@ -353,14 +366,13 @@ html, body{
   </div>
 
   <!-- شاشة البحث -->
-
-  <div id="searchOverlay">
+<div id="searchOverlay">
   <div class="search-brand-box" id="searchBrandTitle">البراند: —</div>
 
   <div class="search-top">
     <input type="text" id="searchInput" placeholder="ابحث عن اسم الزبون">
 
-    <button type="button" class="btn btn-secondary" style="flex:0 0 auto;padding:12px 14px" onclick="startVoiceSearch()">
+    <button type="button" id="voiceBtn" class="btn btn-secondary" style="flex:0 0 auto;padding:12px 14px" onclick="startVoiceSearch()">
       🎤
     </button>
 
@@ -387,29 +399,7 @@ html, body{
       إرسال المحددين (<span id="bulkCount">0</span>)
     </button>
   </div>
-</div>
-    
-      <input type="text" id="searchInput" placeholder="ابحث عن اسم الزبون">
-      <button class="btn btn-secondary" style="flex:0 0 auto;padding:12px 16px" onclick="closeSearch()">إلغاء</button>
-    </div>
-    <div class="search-actions">
-      <button type="button" class="mini-btn primary" id="startSelectBtn" onclick="startSelectionMode()">تحديد</button>
-      <div id="selectionTools" style="display:none;">
-        <button type="button" class="mini-btn" onclick="selectAllVisible()">تحديد الكل</button>
-        <button type="button" class="mini-btn" onclick="clearSelectedCustomers()">إلغاء التحديد</button>
-        <button type="button" class="mini-btn danger" onclick="endSelectionMode()">إنهاء</button>
-      </div>
-    </div>
-    <div id="selectedCountBox" class="selected-count-box" style="display:none;">
-      عدد المحددين: <span id="selectedCount">0</span>
-    </div>
-    <div id="searchResults"></div>
-    <div id="bulkSendBar" class="bulk-send-bar" style="display:none;">
-      <button type="button" class="btn btn-primary" id="bulkSendBtn" onclick="sendSelectedCustomers()">
-        إرسال المحددين (<span id="bulkCount">0</span>)
-      </button>
-    </div>
-  </div>
+</div>>
 
 </div><!-- /pageMain -->
 
@@ -1182,40 +1172,67 @@ window.sendPickedFiles = sendPickedFiles;
 
 document.getElementById("filesPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
 document.getElementById("folderPageInput").addEventListener("change",function(e){ normalizePickedFiles(e.target.files); });
+let voiceRecognition = null;
+let voiceRecording = false;
+
 function startVoiceSearch(){
-  if(!('webkitSpeechRecognition' in window)){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if(!SpeechRecognition){
     alert("المتصفح ما يدعم البحث الصوتي");
     return;
   }
 
-  const recognition = new webkitSpeechRecognition();
-  recognition.lang = "ar-IQ"; // عربي عراقي
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
+  const voiceBtn = document.getElementById("voiceBtn");
 
-  recognition.start();
+  if(voiceRecording && voiceRecognition){
+    voiceRecognition.stop();
+    return;
+  }
 
-  recognition.onstart = () => {
-    searchInput.placeholder = "🎤 احچي...";
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.lang = "ar-IQ";
+  voiceRecognition.interimResults = false;
+  voiceRecognition.maxAlternatives = 1;
+  voiceRecognition.continuous = false;
+
+  voiceRecognition.onstart = () => {
+    voiceRecording = true;
+    if(voiceBtn){
+      voiceBtn.classList.add("recording");
+      voiceBtn.textContent = "🎙️";
+    }
+    searchInput.placeholder = "🎤 احچي اسم الزبون...";
   };
 
-  recognition.onresult = (event) => {
+  voiceRecognition.onresult = (event) => {
     const text = event.results[0][0].transcript;
     searchInput.value = text;
-    searchInput.dispatchEvent(new Event("input")); // يشغل الفلترة
+    searchInput.dispatchEvent(new Event("input"));
   };
 
-  recognition.onerror = () => {
-    alert("صار خطأ بالمايك");
-  };
-
-  recognition.onend = () => {
+  voiceRecognition.onerror = () => {
+    voiceRecording = false;
+    if(voiceBtn){
+      voiceBtn.classList.remove("recording");
+      voiceBtn.textContent = "🎤";
+    }
     searchInput.placeholder = "ابحث عن اسم الزبون";
   };
+
+  voiceRecognition.onend = () => {
+    voiceRecording = false;
+    if(voiceBtn){
+      voiceBtn.classList.remove("recording");
+      voiceBtn.textContent = "🎤";
+    }
+    searchInput.placeholder = "ابحث عن اسم الزبون";
+  };
+
+  voiceRecognition.start();
 }
 
-window.startVoiceSearch = startVoiceSearch;
-// ===== التهيئة =====
+window.startVoiceSearch = startVoiceSearch;// ===== التهيئة =====
 await loadFirebaseCustomers();
 </script>
 

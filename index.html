@@ -229,8 +229,18 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;background:ra
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}}
 
+html, body{
+  height:100%;
+  overflow:hidden;
+}
+
 #pageMain{
   height:100vh;
+  overflow:hidden;
+}
+
+#pageMain .container{
+  height:100%;
   overflow:hidden;
 }
 </style>
